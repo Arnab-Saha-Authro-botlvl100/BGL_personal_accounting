@@ -10,7 +10,89 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
-    //
+    
+    // public function store(Request $request)
+    // {
+    //     // Validate the request
+    //     $request->validate([
+    //         'date' => 'required|date',
+    //         'receive_type' => 'required|in:customer,others',
+    //         'customer_id' => 'nullable|exists:customers,id',
+    //         'customer_name' => 'nullable|string|max:255',
+    //         'contract_invoice' => 'nullable|string|max:255',
+    //         'receive_amount' => 'nullable|string|max:255',
+    //         'transaction_method' => 'required|in:cash,bank',
+    //         'bank_name' => 'nullable|string|max:255',
+    //         'account_number' => 'nullable|string|max:20',
+    //         'branch_name' => 'nullable|string|max:255',
+    //         'amount' => 'required|numeric|min:0',
+    //         'note' => 'nullable|string|max:500',
+    //     ]);
+
+    //     // Get customer ID and new payment amount
+    //     $customerId = $request->customer_id;
+    //     $newPaymentAmount = $request->amount;
+    //     $supplierContract = $newTotalPaid = 0;
+        
+    //     if ($customerId) {
+    //         // Get total amount paid by this customer
+    //         $totalPaid = Payment::where('customer_id', $customerId)->sum('amount');
+
+    //         // Get customer's supplier contract amount
+    //         $customer = Customer::find($customerId);
+    //         if (!$customer) {
+    //             return response()->json(['error' => 'Customer not found.'], 400);
+    //         }
+
+    //         $supplierContract = $customer->supplier_contract;
+    //         $newTotalPaid = $totalPaid + $newPaymentAmount;
+
+    //         // Check if new total paid exceeds supplier contract
+    //         if ($newTotalPaid > $supplierContract) {
+    //             return response()->json([
+    //                 'error' => 'Payment exceeds supplier contract. Remaining balance: ' . number_format($supplierContract - $totalPaid, 2) . ' BDT'
+    //             ], 400);
+    //         }
+    //     } else {
+    //         $newTotalPaid = $newPaymentAmount;
+    //     }
+
+    //     // Add authenticated user's ID
+    //     $request->merge(['user' => Auth::id()]);
+
+    //     try {
+    //         // Create the payment transaction
+    //         $payment = Payment::create($request->all());
+
+    //         // Prepare clipboard text
+    //         $clipboardText = "Contract: $supplierContract\nTotal Paid Amount: $newTotalPaid\nDue: " . ($supplierContract - $newTotalPaid);
+
+    //         // Store clipboard text in session
+    //         session()->flash('clipboard_text', $clipboardText);
+
+    //         // Prepare the response
+    //         $response = [
+    //             'success' => 'Payment transaction successfully created.',
+    //         ];
+
+    //         // If the receive_type is 'others', redirect to the payments index route
+    //         if ($request->receive_type === 'others') {
+    //             return response()->json([
+    //                 'success' => $response['success'],
+    //                 'redirect_url' => route('payments.index'),
+    //             ]);
+    //         }
+
+    //         // For 'customer', redirect to receipt page
+    //         $response['redirect_url'] = route('payments.receipt', ['customer_id' => $customerId, 'payment_id' => $payment->id]);
+
+    //         // Return the response as JSON
+    //         return response()->json($response);
+
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Failed to receive payment. Please try again. ' . $e->getMessage()], 500);
+    //     }
+    // }
     public function store(Request $request)
     {
         // Validate the request
@@ -33,6 +115,7 @@ class PaymentController extends Controller
         $customerId = $request->customer_id;
         $newPaymentAmount = $request->amount;
         $supplierContract = $newTotalPaid = 0;
+
         if ($customerId) {
             // Get total amount paid by this customer
             $totalPaid = Payment::where('customer_id', $customerId)->sum('amount');
@@ -40,18 +123,12 @@ class PaymentController extends Controller
             // Get customer's supplier contract amount
             $customer = Customer::find($customerId);
             if (!$customer) {
-                return redirect()->back()->with('error', 'Customer not found.');
+                return response()->json(['error' => 'Customer not found.'], 400);
             }
 
             $supplierContract = $customer->supplier_contract;
             $newTotalPaid = $totalPaid + $newPaymentAmount;
-
-            // Check if new total paid exceeds supplier contract
-            if ($newTotalPaid > $supplierContract) {
-                return redirect()->back()->with('error', 'Payment exceeds supplier contract. Remaining balance: ' . number_format($supplierContract - $totalPaid, 2) . ' BDT');
-            }
-        }
-        else{
+        } else {
             $newTotalPaid = $newPaymentAmount;
         }
 
@@ -62,23 +139,35 @@ class PaymentController extends Controller
             // Create the payment transaction
             $payment = Payment::create($request->all());
 
-             // Prepare clipboard text
-            $clipboardText = "Contract: $supplierContract\nTotal Paid Amount: $newTotalPaid\nDue: " . ($supplierContract - $newTotalPaid);
+            // Prepare clipboard text
+            $clipboardText = "Total Paid Amount: $newTotalPaid\nCustomer: " . ($customer->name);
 
-             // Store clipboard text in session
+            // Store clipboard text in session
             session()->flash('clipboard_text', $clipboardText);
-            // Redirect to receipt page with customer_id and payment_id
-            if($request->receive_type === 'others'){
-                return redirect()->route('payments.index')->with('success', 'Payment transaction successfully created');
+
+            // Prepare the response
+            $response = [
+                'success' => 'Payment transaction successfully created.',
+            ];
+
+            // If the receive_type is 'others', redirect to the payments index route
+            if ($request->receive_type === 'others') {
+                return response()->json([
+                    'success' => $response['success'],
+                    'redirect_url' => route('payments.index'),
+                ]);
             }
-            return redirect()->route('payments.receipt', ['customer_id' => $customerId, 'payment_id' => $payment->id])
-                ->with('success', 'Payment received successfully.');
+
+            // For 'customer', redirect to receipt page
+            $response['redirect_url'] = route('payments.receipt', ['customer_id' => $customerId, 'payment_id' => $payment->id]);
+
+            // Return the response as JSON
+            return response()->json($response);
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to receive payment. Please try again. ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to receive payment. Please try again. ' . $e->getMessage()], 500);
         }
     }
-
 
     // Display a listing of the receives
     public function index()
@@ -90,7 +179,7 @@ class PaymentController extends Controller
                     ->where('customers.is_delete', 0)
                     ->where('customers.is_active', 1)
                     ->join('contracts', 'customers.contract_id', '=', 'contracts.id')
-                    ->join('suppliers', 'customers.supplier', '=', 'suppliers.id')
+                    ->leftjoin('suppliers', 'customers.supplier', '=', 'suppliers.id')
                     ->select('customers.name', 'customers.customer_id','customers.id', 'contracts.invoice_no', 'customers.supplier_contract', 'suppliers.name as supplier_name')
                     ->get();
         $banks = Transaction::where([

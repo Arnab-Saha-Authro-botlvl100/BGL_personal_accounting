@@ -28,6 +28,7 @@ class ContractController extends Controller{
     
    public function create($id) 
    {
+        // dd($id);
        // Retrieve the customer by ID
        $customer = Customer::find($id);
    
@@ -39,6 +40,7 @@ class ContractController extends Controller{
        DB::beginTransaction();
    
        try {
+
            // Create a new contract
            $contract = new Contract();
            $contract->invoice_no = $this->generateUniqueInvoiceNo();
@@ -66,13 +68,15 @@ class ContractController extends Controller{
            DB::commit();
    
            // Return a success response
-           return response()->json(['success' => 'Contract confirmed successfully.'], 200);
+           return redirect()->route('customers.create', ['customer_id' => $customer->customer_id])
+        ->with('success', 'Customer created successfully! Customer ID: ' . $customer->customer_id);
    
        } catch (\Exception $e) {
            // Rollback the transaction in case of an error
            DB::rollBack();
-   
-           return response()->json(['error' => 'Contract creation failed: ' . $e->getMessage()], 500);
+           return redirect()->route('customers.create', ['customer_id' => $customer->customer_id])
+           ->with('error', 'Contract creation failed: ' . $e->getMessage());
+        //    return response()->json(['error' => 'Contract creation failed: ' . $e->getMessage()], 500);
        }
    }
    

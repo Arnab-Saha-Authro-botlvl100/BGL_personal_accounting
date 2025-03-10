@@ -104,17 +104,17 @@ class CustomerController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'customer_id' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:20',
+            // 'phone_number' => 'required|string|max:20',
             'gender' => 'nullable|in:Male,Female,Other',
-            'agent_contract' => 'required|numeric',
-            'supplier_contract' => 'nullable|numeric',
+            // 'agent_contract' => 'required|numeric',
+            // 'supplier_contract' => 'nullable|numeric',
             'passport_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'nid_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'note' => 'nullable|string',
-            'passport_number' => 'required|string|max:255',
-            'agent' => 'required|exists:agents,id',
-            'supplier' => 'nullable|exists:suppliers,id',
-            'service' => 'required|exists:services,id',
+            // 'passport_number' => 'required|string|max:255',
+            // 'agent' => 'required|exists:agents,id',
+            // 'supplier' => 'nullable|exists:suppliers,id',
+            // 'service' => 'required|exists:services,id',
             // 'passport_expiry_date' => 'required|date',
             'country_of_residence' => 'nullable|string|max:255',
             'address_line_1' => 'nullable|string|max:255',
@@ -143,7 +143,9 @@ class CustomerController extends Controller
         $customer = Customer::create($validatedData);
 
        // Redirect or return a response, passing customer_id as a parameter to the route
-        return redirect()->route('customers.create', ['customer_id' => $customer->customer_id])
+        // return redirect()->route('customers.create', ['customer_id' => $customer->customer_id])
+        // ->with('success', 'Customer created successfully! Customer ID: ' . $customer->customer_id);
+        return redirect()->route('contract.create', ['customer_id' => $customer->id])
         ->with('success', 'Customer created successfully! Customer ID: ' . $customer->customer_id);
 
     }

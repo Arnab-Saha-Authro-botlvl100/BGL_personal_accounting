@@ -17,41 +17,8 @@ class ReceiveController extends Controller
         return view('receives.create', compact('customers')); // Adjust the view path as needed
     }
 
-    // public function store(Request $request)
-    // {
-    //     // Validate the request
-    //     $request->validate([
-    //         'date' => 'required|date',
-    //         'receive_type' => 'required|in:customer,others',
-    //         'customer_id' => 'nullable|exists:customers,id',
-    //         'customer_name' => 'nullable|string|max:255',
-    //         'contract_invoice' => 'nullable|string|max:255',
-    //         'receive_amount' => 'nullable|string|max:255',
-    //         'transaction_method' => 'required|in:cash,bank',
-    //         'bank_name' => 'nullable|string|max:255',
-    //         'account_number' => 'nullable|string|max:20',
-    //         'branch_name' => 'nullable|string|max:255',
-    //         'amount' => 'required|numeric|min:0',
-    //         'note' => 'nullable|string|max:500',
-    //     ]);
-    
-    //     // Add authenticated user's ID
-    //     $request->merge(['user' => Auth::id()]);
-    
-    //     try {
-    //         // Create the receive transaction
-    //         Receive::create($request->all());
-    
-    //         return redirect()->route('receives.index')->with('success', 'Transaction received successfully.');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', 'Failed to receive. Please try again. ' . $e->getMessage());
-    //     }
-    // }
-    
-
     public function store(Request $request)
     {
-        // dd($request->all());
         // Validate the request
         $request->validate([
             'date' => 'required|date',
@@ -67,58 +34,66 @@ class ReceiveController extends Controller
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string|max:500',
         ]);
-
+    
         // Get customer ID and new payment amount
         $customerId = $request->customer_id;
         $newReceiveAmount = $request->amount;
         $agentContact = 0;
         $totalPaid = $newTotalPaid = 0;
+    
         if ($customerId) {
             // Get total amount paid by this customer
             $totalPaid = Receive::where('customer_id', $customerId)->sum('amount');
-
+    
             // Get customer's supplier contract amount
             $customer = Customer::find($customerId);
             if (!$customer) {
-                return redirect()->back()->with('error', 'Customer not found.');
+                return response()->json(['error' => 'Customer not found.'], 400);
             }
-
+    
             $agentContact = $customer->agent_contract;
             $newTotalPaid = $totalPaid + $newReceiveAmount;
-
-            // Check if new total paid exceeds supplier contract
-            if ($newTotalPaid > $agentContact) {
-                return redirect()->back()->with('error', 'Receive exceeds agent contract. Remaining balance: ' . number_format($agentContact - $totalPaid, 2) . ' BDT');
-            }
-        }
-        else{
+        } else {
             $newTotalPaid = $newReceiveAmount;
         }
-
+    
         // Add authenticated user's ID
         $request->merge(['user' => Auth::id()]);
-
+    
         try {
             // Create the receive transaction
             $receive = Receive::create($request->all());
-            
+    
             // Prepare clipboard text
-            $clipboardText = "Contract: $agentContact \nTotal Received Amount: $newTotalPaid\nDue: " . ($agentContact - $newTotalPaid);
-
+            $clipboardText = "Total Received Amount: $newTotalPaid\nCustomer: " . ($customer->name);
+    
             // Store clipboard text in session
             session()->flash('clipboard_text', $clipboardText);
-
-            // Redirect to receipt page with customer_id and receive_id (if receive_type is 'customer')
+    
+            // Prepare the response
+            $response = [
+                'success' => 'Transaction received successfully.',
+            ];
+    
+            // If the receive_type is 'others', redirect to the index route
             if ($request->receive_type === 'others') {
-                return redirect()->route('receives.index')->with('success', 'Transaction received successfully.');
+                return response()->json([
+                    'success' => $response['success'],
+                    'redirect_url' => route('receives.index'),
+                ]);
             }
-            return redirect()->route('receives.receipt', ['customer_id' => $customerId, 'receive_id' => $receive->id])
-                ->with('success', 'Transaction received successfully.');
-
+    
+            // For 'customer', redirect to receipt page
+            $response['redirect_url'] = route('receives.receipt', ['customer_id' => $customerId, 'receive_id' => $receive->id]);
+    
+            // Return the response as JSON
+            return response()->json($response);
+    
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to receive. Please try again. ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to receive. Please try again. ' . $e->getMessage()], 500);
         }
     }
+    
 
     // Display a listing of the receives
     public function index()
@@ -132,7 +107,7 @@ class ReceiveController extends Controller
                     ->where('customers.is_delete', 0)
                     ->where('customers.is_active', 1)
                     ->join('contracts', 'customers.contract_id', '=', 'contracts.id')
-                    ->join('agents', 'customers.agent', '=', 'agents.id')
+                    ->leftjoin('agents', 'customers.agent', '=', 'agents.id')
                     ->select('customers.name', 'customers.customer_id','customers.id', 'contracts.invoice_no', 'customers.agent_contract', 'agents.name as agent_name')
                     ->get();
         $banks = Transaction::where([

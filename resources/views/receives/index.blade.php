@@ -86,7 +86,7 @@
                                 </div>
 
                                 <!-- Agent, Agent Contract, and Due Amount -->
-                                <div class="row mb-3 customer-info" id="customer-info" style="display: none;">
+                                {{-- <div class="row mb-3 customer-info" id="customer-info" style="display: none;">
                                     <div class="col-12 col-md-4 mb-3">
                                         <label for="contract_invoice" class="form-label">Agent</label>
                                         <input type="text" class="form-control" name="contract_invoice" id="contract_invoice"
@@ -103,7 +103,7 @@
                                         <label for="due_amount" class="form-label">Due Amount</label>
                                         <input type="text" class="form-control" name="due_amount" id="due_amount" readonly>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <!-- Transaction Method and Bank Details -->
                                 <div class="row mb-3">
@@ -141,22 +141,21 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Account Number -->
+                                           <!-- Account Number -->
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="account_number" class="form-label">Account Number</label>
-                                              <!-- This span will display the account number -->
-                                                <span id="account_number" class="form-control"></span>
-
-                                                <input type="hidden" name="account_number" id="account_number2">
+                                                <label for="account_number_display" class="form-label">Account Number</label>
+                                                <span id="account_number_display" class="form-control"></span>
+                                                <input type="hidden" name="account_number" id="account_number">
                                             </div>
 
                                             <!-- Branch Name -->
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="branch_name" class="form-label">Branch Name</label>
-                                                <span id="branch_name" class="form-control"></span>
-                                                <input type="hidden" name="branch_name" id="branch_name2">
-
+                                                <label for="branch_name_display" class="form-label">Branch Name</label>
+                                                <span id="branch_name_display" class="form-control"></span>
+                                                <input type="hidden" name="branch_name" id="branch_name">
                                             </div>
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -195,8 +194,7 @@
                                             <th scope="col">Date</th>
                                             <th scope="col">Receive Type</th>
                                             <th scope="col">Customer Name</th>
-                                            <th scope="col">Contract Invoice</th>
-                                            <th scope="col">Agent Contract</th>
+                                           
                                             <th scope="col">Transaction Method</th>
                                             <th scope="col">Amount</th>
                                             <th scope="col">Note</th>
@@ -209,8 +207,7 @@
                                                 <td>{{ date('d-m-y', strtotime($receive->date)) }}</td>
                                                 <td>{{ ucfirst($receive->receive_type) }}</td>
                                                 <td>{{ $receive->customer_name }}</td>
-                                                <td>{{ $receive->contract_invoice }}</td>
-                                                <td>{{ $receive->receive_amount }}</td>
+                                                
                                                 <td>{{ ucfirst($receive->transaction_method) }}</td>
                                                 <td class="fw-bold text-success">{{ number_format($receive->amount, 2) }}</td>
                                                 <td>{{ $receive->note }}</td>
@@ -313,18 +310,96 @@
                 info: true // Display table information
             });
 
+        });
+    </script>
+
+    <script>
+        // $(document).ready(function () {
+           
+            
+        //     // Show/hide customer selection and customer-info when "Customer" is selected
+        //     $('#receive_type').change(function() {
+        //         if ($(this).val() === 'customer') {
+        //             $('#customer_selection').show();
+        //             $('.customer-info').show(); // Show all elements with class "customer-info"
+        //         } else {
+        //             $('#customer_selection').hide();
+        //             $('.customer-info').hide(); // Hide all elements with class "customer-info"
+        //             $('#customer_name').val('');
+        //             $('#contract_invoice').val('');
+        //             $('#agent_contract').val('');
+        //             $('#due_amount').val('');
+        //         }
+        //     });
+
+        //     // Populate customer details when a customer is selected
+        //     $('#customer_id').change(function() {
+        //         const selectedCustomer = $(this).find(':selected');
+        //         const customerId = selectedCustomer.val();
+        //         // console.log(customerId);
+        //         if (customerId) {
+        //             // Fetch the due amount for the selected customer
+        //             $.ajax({
+        //                 url: `/get-due-amount/${customerId}`,
+        //                 method: 'GET',
+        //                 success: function(response) {
+        //                     if (response.error) {
+        //                         alert(response
+        //                         .error); // Show error message if customer is not found
+        //                         $('#due_amount').val(''); // Clear the due amount field
+        //                     } else {
+        //                         // Update the due amount field with the fetched value
+        //                         $('#due_amount').val(response.due_amount);
+        //                     }
+        //                 },
+        //                 error: function(xhr, status, error) {
+        //                     console.error('Error fetching due amount:', error);
+        //                     $('#due_amount').val(''); // Clear the due amount field on error
+        //                 }
+        //             });
+        //         } else {
+        //             $('#due_amount').val(''); // Clear the due amount field if no customer is selected
+        //         }
+
+        //         // Populate other customer details
+        //         $('#customer_name').val(selectedCustomer.text());
+        //         $('#contract_invoice').val(selectedCustomer.data('contract-invoice'));
+        //         $('#agent_contract').val(selectedCustomer.data('agent-contract'));
+        //     });
+
+        //     // Show/hide bank details when "Bank" is selected
+        //     $('#transaction_method').change(function() {
+        //         if ($(this).val() === 'bank') {
+        //             $('#bank_details').show();
+        //         } else {
+        //             $('#bank_details').hide();
+        //             $('#bank_name').val('');
+        //             $('#account_number2').val('');
+        //             $('#branch_name2').val('');
+        //         }
+        //     });
+
+        //     $(document).on('change', '#bank_name', function () {
+               
+        //         const selectedBank = $(this).find(':selected');
+               
+        //           // Use innerHTML to update span content
+        //         $('#account_number').html(selectedBank.attr('data-account-number'));
+        //         $('#branch_name').html(selectedBank.attr('data-branch-name'));
+        //         $('#account_number2').val(selectedBank.attr('data-account-number'));
+        //         $('#branch_name2').val(selectedBank.attr('data-branch-name'));
+        //     });
+        // });
+        $(document).ready(function () {
             // Show/hide customer selection and customer-info when "Customer" is selected
             $('#receive_type').change(function() {
                 if ($(this).val() === 'customer') {
                     $('#customer_selection').show();
-                    $('.customer-info').show(); // Show all elements with class "customer-info"
+                    $('.customer-info').show();
                 } else {
                     $('#customer_selection').hide();
-                    $('.customer-info').hide(); // Hide all elements with class "customer-info"
-                    $('#customer_name').val('');
-                    $('#contract_invoice').val('');
-                    $('#agent_contract').val('');
-                    $('#due_amount').val('');
+                    $('.customer-info').hide();
+                    $('#customer_name, #contract_invoice, #agent_contract, #due_amount').val('');
                 }
             });
 
@@ -332,32 +407,28 @@
             $('#customer_id').change(function() {
                 const selectedCustomer = $(this).find(':selected');
                 const customerId = selectedCustomer.val();
-                // console.log(customerId);
+
                 if (customerId) {
-                    // Fetch the due amount for the selected customer
                     $.ajax({
                         url: `/get-due-amount/${customerId}`,
                         method: 'GET',
                         success: function(response) {
                             if (response.error) {
-                                alert(response
-                                .error); // Show error message if customer is not found
-                                $('#due_amount').val(''); // Clear the due amount field
+                                alert(response.error);
+                                $('#due_amount').val('');
                             } else {
-                                // Update the due amount field with the fetched value
                                 $('#due_amount').val(response.due_amount);
                             }
                         },
                         error: function(xhr, status, error) {
                             console.error('Error fetching due amount:', error);
-                            $('#due_amount').val(''); // Clear the due amount field on error
+                            $('#due_amount').val('');
                         }
                     });
                 } else {
-                    $('#due_amount').val(''); // Clear the due amount field if no customer is selected
+                    $('#due_amount').val('');
                 }
 
-                // Populate other customer details
                 $('#customer_name').val(selectedCustomer.text());
                 $('#contract_invoice').val(selectedCustomer.data('contract-invoice'));
                 $('#agent_contract').val(selectedCustomer.data('agent-contract'));
@@ -369,28 +440,65 @@
                     $('#bank_details').show();
                 } else {
                     $('#bank_details').hide();
-                    $('#bank_name').val('');
-                    $('#account_number2').val('');
-                    $('#branch_name2').val('');
+                    $('#bank_name, #account_number2, #branch_name2').val('');
+                    $('#account_number, #branch_name').text(''); // Clear displayed text
                 }
             });
-        });
-    </script>
 
-    <script>
-        $(document).ready(function () {
-           
+            // Populate bank details on bank selection
             $(document).on('change', '#bank_name', function () {
-               
                 const selectedBank = $(this).find(':selected');
+                
+                const accountNumber = selectedBank.data('account-number') || '';
+                const branchName = selectedBank.data('branch-name') || '';
+
+                // Update displayed values
+                $('#account_number_display').text(accountNumber);
+                $('#branch_name_display').text(branchName);
+    
+                // Update hidden input values to be passed in form submission
+                $('#account_number').val(accountNumber);
+                $('#branch_name').val(branchName);
                
-                  // Use innerHTML to update span content
-                $('#account_number').html(selectedBank.attr('data-account-number'));
-                $('#branch_name').html(selectedBank.attr('data-branch-name'));
-                $('#account_number2').val(selectedBank.attr('data-account-number'));
-                $('#branch_name2').val(selectedBank.attr('data-branch-name'));
+
             });
+
+            $('#receive_form').on('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                let formData = new FormData(this);
+
+                // Manually set account_number and branch_name
+                formData.set('account_number', $('#account_number_display').text());
+                formData.set('branch_name', $('#branch_name_display').text());
+
+                // Submit using AJAX
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: $(this).attr('method'),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        console.log("Success:", response);
+                        if (response.success) {
+                            // Optionally redirect or show a success message
+                            window.location.href = response.redirect_url; // Redirect to receipt page
+                        }
+                    },
+                    error: function (error) {
+                        console.log("Error:", error);
+                        if (error.responseJSON) {
+                            alert(error.responseJSON.error); // Show error message from backend
+                        } else {
+                            alert('Something went wrong. Please try again.');
+                        }
+                    }
+                });
+            });
+
         });
+
     </script>
 
      <script>

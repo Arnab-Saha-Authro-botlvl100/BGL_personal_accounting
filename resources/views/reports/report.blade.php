@@ -4,8 +4,8 @@
             <th>Date</th>
             <th>Invoice/Customer ID/Type</th>
             <th>Details</th>
-            <th>Agent Contact</th>
-            <th>Supplier Contact</th>
+            <th>Receive Amount</th>
+            <th>Payment Amount</th>
         </tr>
     </thead>
     <tbody>
@@ -35,7 +35,7 @@
                     </td>
                     <td>{{ $item->receive_type }}</td>
                     <td>
-                        <strong>{{ $item->contract_invoice }}/{{ $item->customer_name }}</strong><br>
+                        Customer Name: <strong>{{ $item->customer_name }}</strong><br>
                         🏦 {{ $item->transaction_method }}<br>
                         🏛 {{ $item->transaction_bank_name }}<br>
                         💳 {{ $item->account_number }}/ {{ $item->branch_name }}<br>
@@ -53,7 +53,7 @@
                     </td>
                     <td>{{ $item->receive_type }}</td>
                     <td>
-                        <strong>{{ $item->contract_invoice }}/{{ $item->customer_name }}</strong><br>
+                        Customer Name: <strong>{{ $item->customer_name }}</strong><br>
                         💳 {{ $item->transaction_method }}<br>
                         🏛 {{ $item->transaction_bank_name }}<br>
                         🔢 {{ $item->account_number }}/ {{ $item->branch_name }}<br>
@@ -77,22 +77,6 @@
                     </td>
                     <td><strong class="text-warning">{{ $item->debit }}</strong></td>
                     <td><strong class="text-primary">{{ $item->credit }}</strong></td>
-                </tr>
-            @elseif($item->getTable() == 'contracts')
-                <tr class="table-contract bg-secondary-subtle">
-                    <td>
-                        <span
-                            class="badge bg-secondary text-white text-uppercase fw-bold">Contract</span><br>
-                        {{ $item->date->format('d-m-y') }}
-                    </td>
-                    <td>{{ $item->invoice_no }}</td>
-                    <td>
-                        👤 Agent: <strong>{{ $item->agent_name }}</strong><br>
-                        🚛 Supplier: <strong>{{ $item->supplier_name }}</strong><br>
-                        👨‍💼 Customer: <strong>{{ $item->customer_name }}</strong>
-                    </td>
-                    <td><strong class="text-success">{{ $item->agent_price }}</strong></td>
-                    <td><strong class="text-danger">{{ $item->supplier_price }}</strong></td>
                 </tr>
             @endif
         @endforeach

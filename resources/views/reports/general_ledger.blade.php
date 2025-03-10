@@ -174,7 +174,7 @@
                                 </select>
                             </div>
                 
-                            <!-- Agent -->
+                            {{-- <!-- Agent -->
                             <div class="form-group">
                                 <label for="agent" class="form-label">
                                     Select Agent
@@ -198,7 +198,7 @@
                                         <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                 
                             <!-- Start Date -->
                             <div class="form-group">
@@ -234,8 +234,8 @@
                                 <th>Date</th>
                                 <th>Invoice/Customer ID/Type</th>
                                 <th>Details</th>
-                                <th>Agent Contact</th>
-                                <th>Supplier Contact</th>
+                                <th>Receive Amount</th>
+                                <th>Payment Amount</th>
                             </tr>
                         </thead>
                         <tbody>

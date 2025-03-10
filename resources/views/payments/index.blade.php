@@ -97,7 +97,7 @@
                                 </div>
                             
                                 <!-- Supplier, Supplier Contract, and Due Amount -->
-                                <div class="row mb-3 customer-info" id="customer-info" style="display: none;">
+                                {{-- <div class="row mb-3 customer-info" id="customer-info" style="display: none;">
                                     <div class="col-12 col-md-4 mb-3">
                                         <label for="contract_invoice" class="form-label">Supplier</label>
                                         <input type="text" class="form-control" name="contract_invoice" id="contract_invoice" readonly>
@@ -112,7 +112,7 @@
                                         <label for="due_amount" class="form-label">Due Amount</label>
                                         <input type="text" class="form-control" name="due_amount" id="due_amount" readonly>
                                     </div>
-                                </div>
+                                </div> --}}
                             
                                 <!-- Transaction Method and Bank Details -->
                                 <div class="row mb-3">
@@ -150,17 +150,20 @@
                             
                                             <!-- Account Number -->
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="account_number" class="form-label">Account Number</label>
-                                                <input type="text" class="form-control" name="account_number" id="account_number" readonly>
+                                                <label for="account_number_display" class="form-label">Account Number</label>
+                                                <span id="account_number_display" class="form-control"></span>
+                                                <input type="hidden" name="account_number" id="account_number">
                                             </div>
-                            
+
                                             <!-- Branch Name -->
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="branch_name" class="form-label">Branch Name</label>
-                                                <input type="text" class="form-control" name="branch_name" id="branch_name" readonly>
+                                                <label for="branch_name_display" class="form-label">Branch Name</label>
+                                                <span id="branch_name_display" class="form-control"></span>
+                                                <input type="hidden" name="branch_name" id="branch_name">
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             
                                 <!-- Amount and Note -->
@@ -196,8 +199,7 @@
                                             <th scope="col">Date</th>
                                             <th scope="col">Receive Type</th>
                                             <th scope="col">Customer Name</th>
-                                            <th scope="col">Contract Invoice</th>
-                                            <th scope="col">Supplier Contract</th>
+                                            
                                             <th scope="col">Transaction Method</th>
                                             <th scope="col">Amount</th>
                                             <th scope="col">Note</th>
@@ -210,8 +212,7 @@
                                                 <td>{{ $receive->date }}</td>
                                                 <td>{{ ucfirst($receive->receive_type) }}</td>
                                                 <td>{{ $receive->customer_name }}</td>
-                                                <td>{{ $receive->contract_invoice }}</td>
-                                                <td>{{ $receive->payment_amount }}</td>
+                                                
                                                 <td>{{ ucfirst($receive->transaction_method) }}</td>
                                                 <td class="fw-bold text-success">{{ number_format($receive->amount, 2) }}</td>
                                                 <td>{{ $receive->note }}</td>
@@ -241,37 +242,37 @@
     <div id="message" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: none;">
 
         <!-- Logged in Message -->
-@if(session('logged_in'))
-<div style="background-color: #50e233;" class="shadow-lg rounded p-4 text-white mb-2">
-    <b>{{ session('logged_in') }}</b>
-</div>
-@endif
+        @if(session('logged_in'))
+        <div style="background-color: #50e233;" class="shadow-lg rounded p-4 text-white mb-2">
+            <b>{{ session('logged_in') }}</b>
+        </div>
+        @endif
 
-<!-- Success Message -->
-@if(session('success'))
-<div style="background-color: #50e233;" class="shadow-lg rounded p-4 text-white">
-    <b>{{ session('success') }}</b>
-</div>
-@endif
+        <!-- Success Message -->
+        @if(session('success'))
+        <div style="background-color: #50e233;" class="shadow-lg rounded p-4 text-white">
+            <b>{{ session('success') }}</b>
+        </div>
+        @endif
 
-<!-- Error Message -->
-@if(session('error'))
-<div style="background-color: #f44336;" class="shadow-lg rounded p-4 text-white">
-    <b>{{ session('error') }}</b>
-</div>
-@endif
+        <!-- Error Message -->
+        @if(session('error'))
+        <div style="background-color: #f44336;" class="shadow-lg rounded p-4 text-white">
+            <b>{{ session('error') }}</b>
+        </div>
+        @endif
 
-<!-- Validation Errors -->
-@if ($errors->any())
-<div style="background-color: #f44336;" class="shadow-lg rounded p-4 text-white">
-    <ul>
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
-</div>
+        <!-- Validation Errors -->
+        @if ($errors->any())
+        <div style="background-color: #f44336;" class="shadow-lg rounded p-4 text-white">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+    </div>
 
 
     
@@ -369,10 +370,55 @@
     });
 
     // Populate bank details when a bank is selected
-    $('#bank_name').change(function () {
+    $(document).on('change', '#bank_name', function () {
         const selectedBank = $(this).find(':selected');
-        $('#account_number').val(selectedBank.data('account-number'));
-        $('#branch_name').val(selectedBank.data('branch-name'));
+        
+        const accountNumber = selectedBank.data('account-number') || '';
+        const branchName = selectedBank.data('branch-name') || '';
+
+        // Update displayed values
+        $('#account_number_display').text(accountNumber);
+        $('#branch_name_display').text(branchName);
+
+        // Update hidden input values to be passed in form submission
+        $('#account_number').val(accountNumber);
+        $('#branch_name').val(branchName);
+               
+
+    });
+
+    $('#payment_form').on('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        let formData = new FormData(this);
+
+        // Manually set account_number and branch_name
+        formData.set('account_number', $('#account_number_display').text());
+        formData.set('branch_name', $('#branch_name_display').text());
+
+        // Submit using AJAX
+        $.ajax({
+            url: $(this).attr('action'),
+            method: $(this).attr('method'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log("Success:", response);
+                if (response.success) {
+                    // Optionally redirect or show a success message
+                    window.location.href = response.redirect_url; // Redirect to receipt page
+                }
+            },
+            error: function (error) {
+                console.log("Error:", error);
+                if (error.responseJSON) {
+                    alert(error.responseJSON.error); // Show error message from backend
+                } else {
+                    alert('Something went wrong. Please try again.');
+                }
+            }
+        });
     });
 </script>
 
