@@ -1,11 +1,19 @@
 <x-app-layout>
     @include('layouts.links')
-    <div class="container-fluid" id="main-content" style="transition: 0.3s;">
+    <div class="container" id="main-content" style="transition: 0.3s;">
         <div class="mt-4 mx-auto px-2" >
             <div class="container" id="initial-div">
-                <form id="cashbookForm">
+                <style>
+                    @media (max-width: 768px) {
+                        .form-container {
+                            width: 100% !important;
+                        }
+                    }
+                </style>
+                
+                <form id="cashbookForm" class="form-container mx-auto" style="width: 80%;">
                     @csrf
-                    <div class="row g-3 align-items-end">
+                    <div class="row g-3">
                         <div class="col-md-5">
                             <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="start_date" name="start_date" required>
@@ -16,16 +24,17 @@
                             <input type="date" class="form-control" id="end_date" name="end_date">
                         </div>
                 
-                        <div class="col-md-2 text-end">
+                        <div class="col-md-2 text-md-end text-center" style="margin-top: 33px;">
                             <button type="submit" class="btn btn-primary w-100">Submit</button>
                         </div>
                     </div>
                 </form>
                 
-                <div id="reportdiv">
-
-                </div>
             </div>
+           
+        </div>
+        <div id="reportdiv">
+
         </div>
     </div>
 

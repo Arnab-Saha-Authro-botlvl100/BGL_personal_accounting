@@ -111,6 +111,9 @@ class PaymentController extends Controller
             'note' => 'nullable|string|max:500',
         ]);
 
+        // Initialize customer variable
+        $customer = null;
+
         // Get customer ID and new payment amount
         $customerId = $request->customer_id;
         $newPaymentAmount = $request->amount;
@@ -139,8 +142,8 @@ class PaymentController extends Controller
             // Create the payment transaction
             $payment = Payment::create($request->all());
 
-            // Prepare clipboard text
-            $clipboardText = "Total Paid Amount: $newTotalPaid\nCustomer: " . ($customer->name);
+            // Prepare clipboard text safely
+            $clipboardText = "Total Paid Amount: $newTotalPaid\nCustomer: " . optional($customer)->name;
 
             // Store clipboard text in session
             session()->flash('clipboard_text', $clipboardText);
@@ -159,7 +162,7 @@ class PaymentController extends Controller
             }
 
             // For 'customer', redirect to receipt page
-            $response['redirect_url'] = route('payments.receipt', ['customer_id' => $customerId, 'payment_id' => $payment->id]);
+            $response['redirect_url'] = route('payments.index');
 
             // Return the response as JSON
             return response()->json($response);
@@ -168,6 +171,7 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Failed to receive payment. Please try again. ' . $e->getMessage()], 500);
         }
     }
+
 
     // Display a listing of the receives
     public function index()

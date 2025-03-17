@@ -22,8 +22,9 @@ use App\Models\Transaction;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('register');
 });
+
 
 Route::get('/dashboard', function () {
   

@@ -559,7 +559,7 @@
                                                     <th scope="col" style="width: 10%;">Supplier Name</th>
                                                     <th scope="col" style="width: 10%;">Agent Name</th> --}}
                                                     <th scope="col" style="width: 10%;">Phone Number</th>
-                                                    <th scope="col" style="width: 10%;">Contract <br> Information
+                                                    {{-- <th scope="col" style="width: 10%;">Contract <br> Information --}}
                                                     </th>
                                                     <th scope="col" style="width: 20%;">Actions</th>
                                                 </tr>
@@ -585,7 +585,7 @@
                                                             {{ $customer->agent_name ?? 'N/A' }}</td> --}}
                                                         <td class="text-center" data-label="Phone">
                                                             {{ $customer->phone_number }}</td>
-                                                        <td data-label="Contract">
+                                                        {{-- <td data-label="Contract">
                                                             @if ($customer->invoice_no)
                                                                 <span
                                                                     class="badge bg-success text-white p-2 mt-3 fw-bold fs-4">{{ $customer->invoice_no }}</span>
@@ -593,7 +593,7 @@
                                                                 <span
                                                                     class="badge bg-danger text-white mt-3 p-2 fw-bold fs-4">Pending</span>
                                                             @endif
-                                                        </td>
+                                                        </td> --}}
                                                         <td class="p-2 text-center" data-label="">
                                                             <!-- View Button -->
                                                             <button type="button" class="btn btn-sm btn-outline-dark"
@@ -639,11 +639,11 @@
                                                                 </a>
                                                             @endif
                                                             <!-- Personal Info Button -->
-                                                            <button type="button" class="btn btn-sm btn-outline-info"
+                                                            {{-- <button type="button" class="btn btn-sm btn-outline-info"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#customer_details_Modal-{{ $customer->id }}">
                                                                 <i class="fa-solid fa-person"></i>
-                                                            </button>
+                                                            </button> --}}
                                                         </td>
                                                     </tr>
                                                 @endforeach

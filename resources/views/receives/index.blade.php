@@ -191,15 +191,15 @@
                                 <table class="table table-striped table-bordered text-center" id="receive-table">
                                     <thead class="table-dark">
                                         <tr>
-                                            <th scope="col">Date</th>
-                                            <th scope="col">Receive Type</th>
-                                            <th scope="col">Customer Name</th>
-                                           
-                                            <th scope="col">Transaction Method</th>
-                                            <th scope="col">Amount</th>
-                                            <th scope="col">Note</th>
-                                            {{-- <th scope="col">Actions</th> --}}
+                                            <th scope="col" class="text-center">Date</th>
+                                            <th scope="col" class="text-center">Receive Type</th>
+                                            <th scope="col" class="text-center">Customer Name</th>
+                                            <th scope="col" class="text-center">Transaction Method</th>
+                                            <th scope="col" class="text-center">Amount</th>
+                                            <th scope="col" class="text-center">Note</th>
+                                            {{-- <th scope="col" class="text-center">Actions</th> --}}
                                         </tr>
+                                        
                                     </thead>
                                     <tbody>
                                         @foreach ($receives as $receive)
@@ -314,82 +314,7 @@
     </script>
 
     <script>
-        // $(document).ready(function () {
-           
-            
-        //     // Show/hide customer selection and customer-info when "Customer" is selected
-        //     $('#receive_type').change(function() {
-        //         if ($(this).val() === 'customer') {
-        //             $('#customer_selection').show();
-        //             $('.customer-info').show(); // Show all elements with class "customer-info"
-        //         } else {
-        //             $('#customer_selection').hide();
-        //             $('.customer-info').hide(); // Hide all elements with class "customer-info"
-        //             $('#customer_name').val('');
-        //             $('#contract_invoice').val('');
-        //             $('#agent_contract').val('');
-        //             $('#due_amount').val('');
-        //         }
-        //     });
-
-        //     // Populate customer details when a customer is selected
-        //     $('#customer_id').change(function() {
-        //         const selectedCustomer = $(this).find(':selected');
-        //         const customerId = selectedCustomer.val();
-        //         // console.log(customerId);
-        //         if (customerId) {
-        //             // Fetch the due amount for the selected customer
-        //             $.ajax({
-        //                 url: `/get-due-amount/${customerId}`,
-        //                 method: 'GET',
-        //                 success: function(response) {
-        //                     if (response.error) {
-        //                         alert(response
-        //                         .error); // Show error message if customer is not found
-        //                         $('#due_amount').val(''); // Clear the due amount field
-        //                     } else {
-        //                         // Update the due amount field with the fetched value
-        //                         $('#due_amount').val(response.due_amount);
-        //                     }
-        //                 },
-        //                 error: function(xhr, status, error) {
-        //                     console.error('Error fetching due amount:', error);
-        //                     $('#due_amount').val(''); // Clear the due amount field on error
-        //                 }
-        //             });
-        //         } else {
-        //             $('#due_amount').val(''); // Clear the due amount field if no customer is selected
-        //         }
-
-        //         // Populate other customer details
-        //         $('#customer_name').val(selectedCustomer.text());
-        //         $('#contract_invoice').val(selectedCustomer.data('contract-invoice'));
-        //         $('#agent_contract').val(selectedCustomer.data('agent-contract'));
-        //     });
-
-        //     // Show/hide bank details when "Bank" is selected
-        //     $('#transaction_method').change(function() {
-        //         if ($(this).val() === 'bank') {
-        //             $('#bank_details').show();
-        //         } else {
-        //             $('#bank_details').hide();
-        //             $('#bank_name').val('');
-        //             $('#account_number2').val('');
-        //             $('#branch_name2').val('');
-        //         }
-        //     });
-
-        //     $(document).on('change', '#bank_name', function () {
-               
-        //         const selectedBank = $(this).find(':selected');
-               
-        //           // Use innerHTML to update span content
-        //         $('#account_number').html(selectedBank.attr('data-account-number'));
-        //         $('#branch_name').html(selectedBank.attr('data-branch-name'));
-        //         $('#account_number2').val(selectedBank.attr('data-account-number'));
-        //         $('#branch_name2').val(selectedBank.attr('data-branch-name'));
-        //     });
-        // });
+    
         $(document).ready(function () {
             // Show/hide customer selection and customer-info when "Customer" is selected
             $('#receive_type').change(function() {

@@ -35,6 +35,9 @@ class ReceiveController extends Controller
             'note' => 'nullable|string|max:500',
         ]);
     
+        // Initialize customer variable
+        $customer = null;
+    
         // Get customer ID and new payment amount
         $customerId = $request->customer_id;
         $newReceiveAmount = $request->amount;
@@ -64,8 +67,8 @@ class ReceiveController extends Controller
             // Create the receive transaction
             $receive = Receive::create($request->all());
     
-            // Prepare clipboard text
-            $clipboardText = "Total Received Amount: $newTotalPaid\nCustomer: " . ($customer->name);
+            // Prepare clipboard text safely
+            $clipboardText = "Total Received Amount: $newTotalPaid\nCustomer: " . optional($customer)->name;
     
             // Store clipboard text in session
             session()->flash('clipboard_text', $clipboardText);
@@ -84,7 +87,7 @@ class ReceiveController extends Controller
             }
     
             // For 'customer', redirect to receipt page
-            $response['redirect_url'] = route('receives.receipt', ['customer_id' => $customerId, 'receive_id' => $receive->id]);
+            $response['redirect_url'] = route('receives.index');
     
             // Return the response as JSON
             return response()->json($response);
@@ -93,6 +96,7 @@ class ReceiveController extends Controller
             return response()->json(['error' => 'Failed to receive. Please try again. ' . $e->getMessage()], 500);
         }
     }
+    
     
 
     // Display a listing of the receives

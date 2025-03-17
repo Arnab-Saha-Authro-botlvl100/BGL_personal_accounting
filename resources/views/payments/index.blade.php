@@ -196,13 +196,12 @@
                                 <table class="table table-striped table-bordered text-center" id="receive-table">
                                     <thead class="table-dark">
                                         <tr>
-                                            <th scope="col">Date</th>
-                                            <th scope="col">Receive Type</th>
-                                            <th scope="col">Customer Name</th>
-                                            
-                                            <th scope="col">Transaction Method</th>
-                                            <th scope="col">Amount</th>
-                                            <th scope="col">Note</th>
+                                            <th scope="col" class="text-center">Date</th>
+                                            <th scope="col" class="text-center">Payment Type</th>
+                                            <th scope="col" class="text-center">Customer Name</th>
+                                            <th scope="col" class="text-center">Transaction Method</th>
+                                            <th scope="col" class="text-center">Amount</th>
+                                            <th scope="col" class="text-center">Note</th>
                                             {{-- <th scope="col">Actions</th> --}}
                                         </tr>
                                     </thead>

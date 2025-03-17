@@ -67,6 +67,7 @@ switch ($width) {
 <style>
     /* Dropdown background gradient */
     .dropdown-open {
+        z-index: 999999;
         background: linear-gradient(135deg, rgba(253, 223, 122, 0.6), rgba(196, 72, 72, 0.4));
         backdrop-filter: blur(10px);
         transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -81,6 +82,8 @@ switch ($width) {
         display: block;
         position: relative;
         transition: color 0.3s ease-in-out;
+        z-index: 999999;
+
     }
 
     /* Hover effect with border-bottom animation */
@@ -94,15 +97,21 @@ switch ($width) {
         bottom: 0;
         right: 0;
         transition: width 0.3s ease-in-out;
+        z-index: 999999;
+
     }
 
     .dropdown-link:hover {
         color: #fff;
+        z-index: 999999;
+
     }
 
     .dropdown-link:hover::after {
         width: 100%;
         left: 0;
+        z-index: 999999;
+
     }
 </style>
 

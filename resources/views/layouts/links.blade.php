@@ -292,6 +292,10 @@
 
 </style>
 <style>
+    .input-group > .input-group-text + select {
+        width: 76%;
+    }
+
     /* Hide sidebar on mobile */
     @media (max-width: 850px) {
         .sidebar {
@@ -999,7 +1003,7 @@
                         <div class="mb-3">
                             <label for="account_number" class="form-label">Account Number</label>
                             <input type="text" name="account_number" id="account_number" class="form-control"
-                                maxlength="12">
+                                maxlength="30">
                         </div>
 
                         <!-- Branch Name -->

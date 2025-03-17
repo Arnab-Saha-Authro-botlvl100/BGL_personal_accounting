@@ -206,7 +206,7 @@
                     @endif
                 </div>
 
-                <div class="row mt-3">
+                {{-- <div class="row mt-3">
                     <div class="col-lg-8 col-12">
                         <h5 class="chart-heading text-center">Agent-wise Total Profit</h5>
                         <div class="chart-container">
@@ -219,7 +219,7 @@
                             <canvas id="supplierProfitChart"></canvas>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 
                 
             </div>
