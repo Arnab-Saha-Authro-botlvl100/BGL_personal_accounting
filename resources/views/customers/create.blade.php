@@ -552,28 +552,29 @@
                                             id="customer-table">
                                             <thead class="table-dark">
                                                 <tr class="align-items-center">
-                                                    <th scope="col" style="width: 15%;">Customer ID</th>
+                                                    <th scope="col" style="width: 5%;">SL No</th>
                                                     <th scope="col" style="width: 15%;">Creation Date</th>
                                                     <th scope="col" style="width: 30%;">Customer Information</th>
                                                     {{-- <th scope="col" style="width: 10%;">Service</th>
                                                     <th scope="col" style="width: 10%;">Supplier Name</th>
                                                     <th scope="col" style="width: 10%;">Agent Name</th> --}}
                                                     <th scope="col" style="width: 10%;">Phone Number</th>
-                                                    {{-- <th scope="col" style="width: 10%;">Contract <br> Information --}}
+                                                    <th scope="col" style="width: 10%;">Note
                                                     </th>
                                                     <th scope="col" style="width: 20%;">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($customers as $customer)
+                                                @foreach ($customers as $index => $customer)
                                                     <tr class="align-items-center justify-content-center">
                                                         <td class="fw-bold text-center" data-label="Customer ID">
-                                                            {{ $customer->customer_id }}</td>
+                                                            {{ $index + 1 }}</td>
                                                         <td class="text-center" data-label="Date">
                                                             {{ $customer->created_at }}</td>
                                                         <td class="text-start text-center"
                                                             data-label="Customer">
-                                                            <strong>{{ $customer->name }}</strong><br>
+                                                            <strong>Name: {{ $customer->name }}</strong><br>
+                                                            <strong>ID: {{ $customer->customer_id }}</strong><br>
                                                             Passport: {{ $customer->passport_number }}<br>
                                                             Gender: {{ $customer->gender }}
                                                         </td>
@@ -585,6 +586,8 @@
                                                             {{ $customer->agent_name ?? 'N/A' }}</td> --}}
                                                         <td class="text-center" data-label="Phone">
                                                             {{ $customer->phone_number }}</td>
+                                                        <td class="text-center" data-label="Phone">
+                                                            {{ $customer->note }}</td>
                                                         {{-- <td data-label="Contract">
                                                             @if ($customer->invoice_no)
                                                                 <span
@@ -750,13 +753,12 @@
 
                                                             <!-- Phone Number -->
                                                             <div class="form-group">
-                                                                <label for="phone_number">Phone Number <span
-                                                                        class="text-danger">*</span></label>
+                                                                <label for="phone_number">Phone Number </label>
                                                                 <input type="tel" name="phone_number"
                                                                     id="phone_number"
                                                                     class="form-control @error('phone_number') is-invalid @enderror"
                                                                     value="{{ old('phone_number', $customer->phone_number) }}"
-                                                                    required>
+                                                                    >
                                                                 @error('phone_number')
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
@@ -859,8 +861,7 @@
                                                         <div class="col-md-6">
                                                             <!-- Passport Number -->
                                                             <div class="form-group">
-                                                                <label for="passport_number">Passport Number <span
-                                                                        class="text-danger">*</span></label>
+                                                                <label for="passport_number">Passport Number</label>
                                                                 <input type="text" name="passport_number"
                                                                     id="passport_number"
                                                                     class="form-control @error('passport_number') is-invalid @enderror"

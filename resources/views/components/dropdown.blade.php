@@ -67,7 +67,7 @@ switch ($width) {
 <style>
     /* Dropdown background gradient */
     .dropdown-open {
-        z-index: 999999;
+        z-index: 99999999;
         background: linear-gradient(135deg, rgba(253, 223, 122, 0.6), rgba(196, 72, 72, 0.4));
         backdrop-filter: blur(10px);
         transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
