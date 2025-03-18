@@ -866,7 +866,7 @@
                                                                     id="passport_number"
                                                                     class="form-control @error('passport_number') is-invalid @enderror"
                                                                     value="{{ old('passport_number', $customer->passport_number) }}"
-                                                                    maxlength="13" required>
+                                                                    maxlength="13" >
                                                                 @error('passport_number')
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
