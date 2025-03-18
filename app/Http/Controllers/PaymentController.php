@@ -97,7 +97,7 @@ class PaymentController extends Controller
     {
         // Validate the request
         $request->validate([
-            'date' => 'required|date',
+            'date' => 'required|date_format:d/m/Y', // Accepts dd/mm/yyyy format
             'receive_type' => 'required|in:customer,others',
             'customer_id' => 'nullable|exists:customers,id',
             'customer_name' => 'nullable|string|max:255',
@@ -118,6 +118,7 @@ class PaymentController extends Controller
         $customerId = $request->customer_id;
         $newPaymentAmount = $request->amount;
         $supplierContract = $newTotalPaid = 0;
+        $formattedDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
 
         if ($customerId) {
             // Get total amount paid by this customer
@@ -140,7 +141,8 @@ class PaymentController extends Controller
 
         try {
             // Create the payment transaction
-            $payment = Payment::create($request->all());
+            // $payment = Payment::create($request->all());
+            $payment = Payment::create(array_merge($request->except('date'), ['date' => $formattedDate]));
 
             // Prepare clipboard text safely
             $clipboardText = "Total Paid Amount: $newTotalPaid\nCustomer: " . optional($customer)->name;

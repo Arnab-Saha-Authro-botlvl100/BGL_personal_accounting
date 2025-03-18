@@ -786,7 +786,7 @@
                                                             </div>
 
                                                             <!-- Agent Contract -->
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <label for="agent_contract">Agent Contract <span
                                                                         class="text-danger">*</span></label>
                                                                 <input type="number" name="agent_contract"
@@ -798,10 +798,10 @@
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
                                                                 @enderror
-                                                            </div>
+                                                            </div> --}}
 
                                                             <!-- Supplier Contract -->
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <label for="supplier_contract">Supplier
                                                                     Contract</label>
                                                                 <input type="number" name="supplier_contract"
@@ -812,7 +812,7 @@
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
                                                                 @enderror
-                                                            </div>
+                                                            </div> --}}
 
 
 
@@ -873,7 +873,7 @@
                                                             </div>
 
                                                             <!-- Agent -->
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <label for="agent">Agent <span
                                                                         class="text-danger">*</span></label>
                                                                 <select name="agent" id="agent"
@@ -890,10 +890,10 @@
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
                                                                 @enderror
-                                                            </div>
+                                                            </div> --}}
 
                                                             <!-- Supplier -->
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <label for="supplier">Supplier</label>
                                                                 <select name="supplier" id="supplier"
                                                                     class="form-control @error('supplier') is-invalid @enderror select2">
@@ -908,10 +908,10 @@
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
                                                                 @enderror
-                                                            </div>
+                                                            </div> --}}
 
                                                             <!-- Service -->
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <label for="service">Service</label>
                                                                 <select name="service" id="service"
                                                                     class="form-control @error('service') is-invalid @enderror select2">
@@ -926,7 +926,7 @@
                                                                     <div class="invalid-feedback">{{ $message }}
                                                                     </div>
                                                                 @enderror
-                                                            </div>
+                                                            </div> --}}
 
 
                                                             <div class="form-group">

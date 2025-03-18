@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <style>
-         @media (min-width: 769px) {
+        @media (min-width: 769px) {
             #main-content {
                 margin-left: 250px;
                 /* Match the width of the sidebar */
@@ -20,13 +20,13 @@
     </style>
     @include('layouts.links')
 
-  
-   
+
+
     <div class="container-fluid" id="main-content" style="transition: 0.3s;">
         <div class="mt-4 mx-auto px-2" style="width: 100%;">
             <div class="container-fluid" id="initial-div">
                 <!-- Receive Form -->
-                <div class="container mt-4" >
+                <div class="container mt-4">
                     <div class="card shadow-lg">
                         <div class="card-header bg-success text-white text-center">
                             <h5 class="mb-0">Receive Transaction</h5>
@@ -41,16 +41,23 @@
 
                                 <!-- Date and Receive Type -->
                                 <div class="row mb-3">
-                                    <div class="col-12 col-md-6 mb-3">
+                                    {{-- <div class="col-12 col-md-6 mb-3">
                                         <label for="date" class="form-label">Date</label>
                                         <input type="date" class="form-control" name="date" required>
+                                    </div> --}}
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label for="date" class="form-label">Date</label>
+                                        <input type="text" class="form-control" id="date" name="date"
+                                            required placeholder="DD/MM/YYYY">
                                     </div>
+
 
                                     <div class="col-12 col-md-6 mb-3">
                                         <label for="receive_type" class="form-label">Receive Type</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-list"></i></span>
-                                            <select name="receive_type" id="receive_type" class="form-select width-style" required>
+                                            <select name="receive_type" id="receive_type"
+                                                class="form-select width-style" required>
                                                 <option value="">Select</option>
                                                 <option value="customer">Customer</option>
                                                 <option value="others">Others</option>
@@ -81,7 +88,8 @@
 
                                     <div class="col-12 col-md-6 mb-3 customer-info" style="display: none;">
                                         <label for="customer_name" class="form-label">Customer Name</label>
-                                        <input type="text" class="form-control" name="customer_name" id="customer_name" readonly>
+                                        <input type="text" class="form-control" name="customer_name"
+                                            id="customer_name" readonly>
                                     </div>
                                 </div>
 
@@ -111,8 +119,8 @@
                                     <div class="col-12 col-md-2 mb-3">
                                         <label for="transaction_method" class="form-label">Transaction Method</label>
                                         <div class="input-group">
-                                            <select name="transaction_method" id="transaction_method" class="form-select w-100"
-                                                required>
+                                            <select name="transaction_method" id="transaction_method"
+                                                class="form-select w-100" required>
                                                 <option value="cash">Cash</option>
                                                 <option value="bank">Bank</option>
                                             </select>
@@ -126,7 +134,8 @@
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
                                                 <label for="bank_name" class="form-label">Bank Name</label>
                                                 <div class="input-group">
-                                                    <span class="input-group-text"><i class="fa fa-university"></i></span>
+                                                    <span class="input-group-text"><i
+                                                            class="fa fa-university"></i></span>
                                                     <select name="bank_name" id="bank_name" class="form-select"
                                                         style="width: 80%">
                                                         <option value="">Select a bank</option>
@@ -137,13 +146,14 @@
                                                                 {{ $bank->bank_name }}
                                                             </option>
                                                         @endforeach
-                                                    </select>                                       
+                                                    </select>
                                                 </div>
                                             </div>
 
-                                           <!-- Account Number -->
+                                            <!-- Account Number -->
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="account_number_display" class="form-label">Account Number</label>
+                                                <label for="account_number_display" class="form-label">Account
+                                                    Number</label>
                                                 <span id="account_number_display" class="form-control"></span>
                                                 <input type="hidden" name="account_number" id="account_number">
                                             </div>
@@ -199,7 +209,7 @@
                                             <th scope="col" class="text-center">Note</th>
                                             {{-- <th scope="col" class="text-center">Actions</th> --}}
                                         </tr>
-                                        
+
                                     </thead>
                                     <tbody>
                                         @foreach ($receives as $receive)
@@ -207,9 +217,10 @@
                                                 <td>{{ date('d-m-y', strtotime($receive->date)) }}</td>
                                                 <td>{{ ucfirst($receive->receive_type) }}</td>
                                                 <td>{{ $receive->customer_name }}</td>
-                                                
+
                                                 <td>{{ ucfirst($receive->transaction_method) }}</td>
-                                                <td class="fw-bold text-success">{{ number_format($receive->amount, 2) }}</td>
+                                                <td class="fw-bold text-success">
+                                                    {{ number_format($receive->amount, 2) }}</td>
                                                 <td>{{ $receive->note }}</td>
                                                 {{-- <td>
                                                     <a href="{{ route('receives.edit', $receive->id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
@@ -234,22 +245,24 @@
         </div>
     </div>
 
-    
-    @if(session('clipboard_text'))
+
+    @if (session('clipboard_text'))
         <textarea id="clipboardText" style="position: absolute; left: -9999px;">{{ session('clipboard_text') }}</textarea>
 
         <!-- Bootstrap Toast -->
         <div class="toast-container position-fixed" style="right: 0; bottom: 0; z-index: 1050; padding: 1rem;">
-            <div id="copyToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="polite" aria-atomic="true">
+            <div id="copyToast" class="toast align-items-center text-bg-success border-0" role="alert"
+                aria-live="polite" aria-atomic="true">
                 <div class="d-flex">
-                    <div class="toast-body" style="background-color: #28a79a; color: white; padding: 10px 20px; border-radius: 5px;">
+                    <div class="toast-body"
+                        style="background-color: #28a79a; color: white; padding: 10px 20px; border-radius: 5px;">
                         Receive information copied to clipboard!
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
                 </div>
             </div>
         </div>
-        
     @endif
 
     <div id="message" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: none;">
@@ -296,8 +309,23 @@
     <!-- DataTables JS -->
     <script src="//cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
 
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <!-- jQuery for dynamic behavior -->
-   
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("#date", {
+                dateFormat: "d/m/Y",
+                allowInput: true
+            });
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
             // console.log(typeof jQuery); 
@@ -306,7 +334,7 @@
                 // Optional configurations
                 paging: true, // Enable pagination
                 searching: true, // Enable search
-                ordering: false, 
+                ordering: false,
                 info: true // Display table information
             });
 
@@ -314,8 +342,7 @@
     </script>
 
     <script>
-    
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Show/hide customer selection and customer-info when "Customer" is selected
             $('#receive_type').change(function() {
                 if ($(this).val() === 'customer') {
@@ -371,24 +398,24 @@
             });
 
             // Populate bank details on bank selection
-            $(document).on('change', '#bank_name', function () {
+            $(document).on('change', '#bank_name', function() {
                 const selectedBank = $(this).find(':selected');
-                
+
                 const accountNumber = selectedBank.data('account-number') || '';
                 const branchName = selectedBank.data('branch-name') || '';
 
                 // Update displayed values
                 $('#account_number_display').text(accountNumber);
                 $('#branch_name_display').text(branchName);
-    
+
                 // Update hidden input values to be passed in form submission
                 $('#account_number').val(accountNumber);
                 $('#branch_name').val(branchName);
-               
+
 
             });
 
-            $('#receive_form').on('submit', function (event) {
+            $('#receive_form').on('submit', function(event) {
                 event.preventDefault(); // Prevent default form submission
 
                 let formData = new FormData(this);
@@ -404,14 +431,15 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
+                    success: function(response) {
                         console.log("Success:", response);
                         if (response.success) {
                             // Optionally redirect or show a success message
-                            window.location.href = response.redirect_url; // Redirect to receipt page
+                            window.location.href = response
+                            .redirect_url; // Redirect to receipt page
                         }
                     },
-                    error: function (error) {
+                    error: function(error) {
                         console.log("Error:", error);
                         if (error.responseJSON) {
                             alert(error.responseJSON.error); // Show error message from backend
@@ -423,10 +451,9 @@
             });
 
         });
-
     </script>
 
-     <script>
+    <script>
         // Show the message container
         const message = document.getElementById('message');
         if (message) {

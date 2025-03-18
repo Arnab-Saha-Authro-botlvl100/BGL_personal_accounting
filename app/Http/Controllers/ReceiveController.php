@@ -19,9 +19,10 @@ class ReceiveController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         // Validate the request
         $request->validate([
-            'date' => 'required|date',
+            'date' => 'required|date_format:d/m/Y', // Accepts dd/mm/yyyy format
             'receive_type' => 'required|in:customer,others',
             'customer_id' => 'nullable|exists:customers,id',
             'customer_name' => 'nullable|string|max:255',
@@ -44,6 +45,8 @@ class ReceiveController extends Controller
         $agentContact = 0;
         $totalPaid = $newTotalPaid = 0;
     
+        $formattedDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
+        // dd($formattedDate);
         if ($customerId) {
             // Get total amount paid by this customer
             $totalPaid = Receive::where('customer_id', $customerId)->sum('amount');
@@ -62,11 +65,12 @@ class ReceiveController extends Controller
     
         // Add authenticated user's ID
         $request->merge(['user' => Auth::id()]);
-    
+        // $request->date = $formattedDate;
         try {
             // Create the receive transaction
-            $receive = Receive::create($request->all());
-    
+            // $receive = Receive::create($request->all());
+            $receive = Receive::create(array_merge($request->except('date'), ['date' => $formattedDate]));
+
             // Prepare clipboard text safely
             $clipboardText = "Total Received Amount: $newTotalPaid\nCustomer: " . optional($customer)->name;
     
