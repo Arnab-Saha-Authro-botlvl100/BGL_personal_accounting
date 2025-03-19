@@ -139,7 +139,7 @@
                                                 {{-- <div class="input-group"> --}}
                                                     {{-- <span class="input-group-text"><i
                                                             class="fa fa-university"></i></span> --}}
-                                                    <select name="bank_name" id="bank_name" class="form-select"
+                                                    <select name="bank_name" id="bank_name" class="form-control"
                                                         style="width: 80%">
                                                         <option value="">Select a bank</option>
                                                         @foreach ($banks as $bank)

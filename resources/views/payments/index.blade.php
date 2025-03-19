@@ -142,7 +142,7 @@
                                                 <label for="bank_name" class="form-label fw-bold">Bank Name</label>
                                                 {{-- <div class="input-group"> --}}
                                                     {{-- <span class="input-group-text"><i class="fa fa-university"></i></span> --}}
-                                                    <select name="bank_name" id="bank_name" class="form-select">
+                                                    <select name="bank_name" id="bank_name" class="form-control">
                                                         <option value="">Select a bank</option>
                                                         @foreach ($banks as $bank)
                                                             <option value="{{ $bank->id }}" data-account-number="{{ $bank->account_number }}" data-branch-name="{{ $bank->branch_name }}">
