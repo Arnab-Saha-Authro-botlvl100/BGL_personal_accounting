@@ -16,6 +16,34 @@
                 /* Match the collapsed sidebar width */
             }
         }
+        .form-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .input-group-text {
+            background: #f8f9fa;
+        }
+        select.form-select {
+            border: 3px solid #ced4da !important; 
+            /* appearance: auto; */
+        }
+
+        .input-group select {
+            border-left: 0 !important; /* Prevents border cutoff inside input-group */
+        }
+
+        .input-group .form-control,
+        .input-group .form-select {
+            border-radius: 0.375rem; /* Match Bootstrap default */
+        }
+
     </style>
     @include('layouts.links')
 
@@ -49,29 +77,21 @@
                             <h5 class="mb-0">Payment Transaction</h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('payments.store') }}" method="POST" id="payment_form"
-                                class="p-4 bg-white shadow rounded">
+                            <form action="{{ route('payments.store') }}" method="POST" id="payment_form" class="p-4 bg-white shadow-lg rounded">
                                 @csrf
-
+                            
                                 <!-- Date and Receive Type -->
                                 <div class="row mb-3">
-                                    {{-- <div class="col-12 col-md-6 mb-3">
-                                        <label for="date" class="form-label">Date</label>
-                                        <input type="date" class="form-control" name="date" required>
-                                    </div> --}}
-
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="date" class="form-label">Date</label>
-                                        <input type="text" class="form-control" id="date" name="date"
-                                            required placeholder="DD/MM/YYYY">
+                                    <div class="col-md-6">
+                                        <label for="date" class="form-label fw-bold">Date</label>
+                                        <input type="text" class="form-control" id="date" name="date" required placeholder="DD/MM/YYYY">
                                     </div>
-
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="receive_type" class="form-label">Receive Type</label>
+                            
+                                    <div class="col-md-6">
+                                        <label for="receive_type" class="form-label fw-bold">Receive Type</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-list"></i></span>
-                                            <select name="receive_type" id="receive_type"
-                                                class="form-select width-style" required>
+                                            <select name="receive_type" id="receive_type" class="form-select" required>
                                                 <option value="">Select</option>
                                                 <option value="customer">Customer</option>
                                                 <option value="others">Others</option>
@@ -79,18 +99,18 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Customer Selection and Name -->
-                                <div class="row mb-3">
-                                    <div class="col-12 col-md-6 mb-3" id="customer_selection" style="display: none;">
-                                        <label for="customer_id" class="form-label">Select Customer</label>
+                            
+                                <!-- Customer Selection -->
+                                <div class="row mb-3" id="customer_selection" style="display: none;">
+                                    <div class="col-md-6">
+                                        <label for="customer_id" class="form-label fw-bold">Select Customer</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-user"></i></span>
-                                            <select name="customer_id" id="customer_id" class="form-select width-style">
+                                            <select name="customer_id" id="customer_id" class="form-select">
                                                 <option value="">Select a customer</option>
                                                 @foreach ($customers as $customer)
-                                                    <option value="{{ $customer->id }}"
-                                                        data-contract-invoice="{{ $customer->supplier_name }}"
+                                                    <option value="{{ $customer->id }}" 
+                                                        data-contract-invoice="{{ $customer->supplier_name }}" 
                                                         data-agent-contract="{{ $customer->supplier_contract }}">
                                                         {{ $customer->name }}
                                                     </option>
@@ -98,105 +118,77 @@
                                             </select>
                                         </div>
                                     </div>
-
-                                    <div class="col-12 col-md-6 mb-3 customer-info" style="display: none;">
-                                        <label for="customer_name" class="form-label">Customer Name</label>
-                                        <input type="text" class="form-control" name="customer_name"
-                                            id="customer_name" readonly>
+                            
+                                    <div class="col-md-6 customer-info" style="display: none;">
+                                        <label for="customer_name" class="form-label fw-bold">Customer Name</label>
+                                        <input type="text" class="form-control" name="customer_name" id="customer_name" readonly>
                                     </div>
                                 </div>
-
-                                <!-- Supplier, Supplier Contract, and Due Amount -->
-                                {{-- <div class="row mb-3 customer-info" id="customer-info" style="display: none;">
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <label for="contract_invoice" class="form-label">Supplier</label>
-                                        <input type="text" class="form-control" name="contract_invoice" id="contract_invoice" readonly>
-                                    </div>
                             
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <label for="supplier_contract" class="form-label">Supplier Contract</label>
-                                        <input type="text" class="form-control" name="supplier_contract" id="supplier_contract" readonly>
-                                    </div>
-                            
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <label for="due_amount" class="form-label">Due Amount</label>
-                                        <input type="text" class="form-control" name="due_amount" id="due_amount" readonly>
-                                    </div>
-                                </div> --}}
-
-                                <!-- Transaction Method and Bank Details -->
+                                <!-- Transaction Method -->
                                 <div class="row mb-3">
-                                    <!-- Transaction Method -->
-                                    <div class="col-12 col-md-2 mb-3">
-                                        <label for="transaction_method" class="form-label">Transaction Method</label>
-                                        <div class="input-group">
-                                            <select name="transaction_method" id="transaction_method"
-                                                class="form-select w-100" required>
-                                                <option value="cash">Cash</option>
-                                                <option value="bank">Bank</option>
-                                            </select>
-                                        </div>
+                                    <div class="col-md-3">
+                                        <label for="transaction_method" class="form-label fw-bold">Transaction Method</label>
+                                        <select name="transaction_method" id="transaction_method" class="form-select" required style="width: 100%;">
+                                            <option value="cash">Cash</option>
+                                            <option value="bank">Bank</option>
+                                        </select>
                                     </div>
-
-                                    <!-- Bank Details -->
-                                    <div class="col-12 col-md-10 mb-3" id="bank_details" style="display: none;">
+                            
+                                    <!-- Bank Details (Hidden by Default) -->
+                                    <div class="col-md-9" id="bank_details" style="display: none;">
                                         <div class="row">
-                                            <!-- Bank Name -->
-                                            <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="bank_name" class="form-label">Bank Name</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text"><i
-                                                            class="fa fa-university"></i></span>
-                                                    <select name="bank_name" id="bank_name" class="form-select"
-                                                        style="width: 80%">
+                                            <div class="col-md-4">
+                                                <label for="bank_name" class="form-label fw-bold">Bank Name</label>
+                                                {{-- <div class="input-group"> --}}
+                                                    {{-- <span class="input-group-text"><i class="fa fa-university"></i></span> --}}
+                                                    <select name="bank_name" id="bank_name" class="form-select">
                                                         <option value="">Select a bank</option>
                                                         @foreach ($banks as $bank)
-                                                            <option value="{{ $bank->id }}"
-                                                                data-account-number="{{ $bank->account_number }}"
-                                                                data-branch-name="{{ $bank->branch_name }}">
+                                                            <option value="{{ $bank->id }}" data-account-number="{{ $bank->account_number }}" data-branch-name="{{ $bank->branch_name }}">
                                                                 {{ $bank->bank_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                </div>
+                                                {{-- </div> --}}
                                             </div>
-
-                                            <!-- Account Number -->
-                                            <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="account_number_display" class="form-label">Account
-                                                    Number</label>
+                            
+                                            <div class="col-md-4">
+                                                <label for="account_number_display" class="form-label fw-bold">Account Number</label>
                                                 <span id="account_number_display" class="form-control"></span>
                                                 <input type="hidden" name="account_number" id="account_number">
                                             </div>
-
-                                            <!-- Branch Name -->
-                                            <div class="col-12 col-md-6 col-lg-4 mb-3">
-                                                <label for="branch_name_display" class="form-label">Branch
-                                                    Name</label>
+                            
+                                            <div class="col-md-4">
+                                                <label for="branch_name_display" class="form-label fw-bold">Branch Name</label>
                                                 <span id="branch_name_display" class="form-control"></span>
                                                 <input type="hidden" name="branch_name" id="branch_name">
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
-
+                            
                                 <!-- Amount and Note -->
                                 <div class="row mb-3">
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="amount" class="form-label">Amount</label>
+                                    <div class="col-md-6">
+                                        <label for="amount" class="form-label fw-bold">Amount</label>
                                         <input type="number" class="form-control" name="amount" required>
                                     </div>
-
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="note" class="form-label">Note</label>
+                            
+                                    <div class="col-md-6">
+                                        <label for="note" class="form-label fw-bold">Note</label>
                                         <textarea class="form-control" name="note" rows="3"></textarea>
                                     </div>
                                 </div>
-
+                            
                                 <!-- Submit Button -->
-                                <button type="submit" class="btn btn-primary w-100">Payment</button>
+                                <div class="row">
+                                    <div class="col-2">
+                                        <button type="submit" class="btn btn-primary w-100">Payment</button>
+                                    </div>
+                                </div>
                             </form>
+                            
                         </div>
                     </div>
                 </div>

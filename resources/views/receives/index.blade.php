@@ -17,6 +17,34 @@
                 /* Match the collapsed sidebar width */
             }
         }
+        .form-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .input-group-text {
+            background: #f8f9fa;
+        }
+        select.form-select {
+            border: 3px solid #ced4da !important; 
+            /* appearance: auto; */
+        }
+
+        .input-group select {
+            border-left: 0 !important; /* Prevents border cutoff inside input-group */
+        }
+
+        .input-group .form-control,
+        .input-group .form-select {
+            border-radius: 0.375rem; /* Match Bootstrap default */
+        }
+
     </style>
     @include('layouts.links')
 
@@ -94,15 +122,12 @@
                                 <!-- Transaction Method and Bank Details -->
                                 <div class="row mb-3">
                                     <!-- Transaction Method -->
-                                    <div class="col-12 col-md-2 mb-3">
-                                        <label for="transaction_method" class="form-label">Transaction Method</label>
-                                        <div class="input-group">
-                                            <select name="transaction_method" id="transaction_method"
-                                                class="form-select w-100" required>
-                                                <option value="cash">Cash</option>
-                                                <option value="bank">Bank</option>
-                                            </select>
-                                        </div>
+                                    <div class="col-md-2">
+                                        <label for="transaction_method" class="form-label fw-bold">Transaction Method</label>
+                                        <select name="transaction_method" id="transaction_method" class="form-select" required style="width: 100%;">
+                                            <option value="cash">Cash</option>
+                                            <option value="bank">Bank</option>
+                                        </select>
                                     </div>
 
                                     <!-- Bank Details -->
@@ -111,9 +136,9 @@
                                             <!-- Bank Name -->
                                             <div class="col-12 col-md-6 col-lg-4 mb-3">
                                                 <label for="bank_name" class="form-label">Bank Name</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text"><i
-                                                            class="fa fa-university"></i></span>
+                                                {{-- <div class="input-group"> --}}
+                                                    {{-- <span class="input-group-text"><i
+                                                            class="fa fa-university"></i></span> --}}
                                                     <select name="bank_name" id="bank_name" class="form-select"
                                                         style="width: 80%">
                                                         <option value="">Select a bank</option>
@@ -125,7 +150,7 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                </div>
+                                                {{-- </div> --}}
                                             </div>
 
                                             <!-- Account Number -->
@@ -162,7 +187,11 @@
                                 </div>
 
                                 <!-- Submit Button -->
-                                <button type="submit" class="btn btn-primary w-100">Receive</button>
+                                <div class="row">
+                                    <div class="col-2">
+                                        <button type="submit" class="btn btn-primary w-100">Receive</button>
+                                    </div>
+                                </div>
                             </form>
 
                         </div>
