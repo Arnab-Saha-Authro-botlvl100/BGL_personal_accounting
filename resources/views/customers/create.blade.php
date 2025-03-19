@@ -20,6 +20,15 @@
     <!-- Custom Styles -->
 
     <style>
+        #customer-table thead tr:hover {
+            background-color: black !important; /* Prevent hover effect */
+        }
+
+        #customer-table thead tr th {
+            text-align: center;
+            vertical-align: middle;
+        }
+
         /* Button styling */
         #add-customer-button {
             width: 100%;
@@ -58,72 +67,72 @@
         }
     </style>
 
-<style>
-    @media (max-width: 800px) {
+    <style>
+        @media (max-width: 800px) {
 
-        #contentdiv{
-            width: 100%!important;
-        }
-        /* Make the table a block layout for mobile */
-        .table-responsive table,
-        .table-responsive thead,
-        .table-responsive tbody,
-        .table-responsive th,
-        .table-responsive td,
-        .table-responsive tr {
-            display: block;
-        }
+            #contentdiv{
+                width: 100%!important;
+            }
+            /* Make the table a block layout for mobile */
+            .table-responsive table,
+            .table-responsive thead,
+            .table-responsive tbody,
+            .table-responsive th,
+            .table-responsive td,
+            .table-responsive tr {
+                display: block;
+            }
 
-        /* Hide the table header on mobile */
-        .table-responsive thead tr {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
+            /* Hide the table header on mobile */
+            .table-responsive thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
 
-        /* Style each row as a block */
-        .table-responsive tr {
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
+            /* Style each row as a block */
+            .table-responsive tr {
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+            }
 
-        /* Style each cell as a block with left-aligned label and right-aligned data */
-        .table-responsive td {
-            border: none;
-            border-bottom: 1px solid #eee;
-            position: relative;
-            padding-left: 50%; /* Space for the label */
-            text-align: right!important; /* Align data to the right */
-            font-size: 12px; /* Decrease font size */
-        }
+            /* Style each cell as a block with left-aligned label and right-aligned data */
+            .table-responsive td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Space for the label */
+                text-align: right!important; /* Align data to the right */
+                font-size: 12px; /* Decrease font size */
+            }
 
-        /* Style the data-label (left side) */
-        .table-responsive td:before {
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            width: 45%; /* Width of the label */
-            padding-right: 10px;
-            white-space: nowrap;
-            content: attr(data-label);
-            font-weight: bold;
-            text-align: left!important; /* Align label to the left */
-            font-size: 12px; /* Decrease font size */
-        }
+            /* Style the data-label (left side) */
+            .table-responsive td:before {
+                position: absolute;
+                top: 6px;
+                left: 6px;
+                width: 45%; /* Width of the label */
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+                text-align: left!important; /* Align label to the left */
+                font-size: 12px; /* Decrease font size */
+            }
 
-        /* Adjust badge size for mobile */
-        .table-responsive .badge {
-            font-size: 10px; /* Decrease badge font size */
-            padding: 0.25rem 0.5rem; /* Adjust badge padding */
-        }
+            /* Adjust badge size for mobile */
+            .table-responsive .badge {
+                font-size: 10px; /* Decrease badge font size */
+                padding: 0.25rem 0.5rem; /* Adjust badge padding */
+            }
 
-        /* Adjust button size for mobile */
-        .table-responsive .btn-sm {
-            padding: 0.25rem 0.5rem; /* Decrease button padding */
-            font-size: 10px; /* Decrease button font size */
+            /* Adjust button size for mobile */
+            .table-responsive .btn-sm {
+                padding: 0.25rem 0.5rem; /* Decrease button padding */
+                font-size: 10px; /* Decrease button font size */
+            }
         }
-    }
-</style>
+    </style>
 
     <!-- Add this in the head section -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -551,7 +560,7 @@
                                         <table class="table table-hover table-bordered text-center align-middle"
                                             id="customer-table">
                                             <thead class="table-dark">
-                                                <tr class="align-items-center">
+                                                <tr class="align-items-center text-center">
                                                     <th scope="col" style="width: 5%;">SL No</th>
                                                     <th scope="col" style="width: 15%;">Creation Date</th>
                                                     <th scope="col" style="width: 30%;">Customer Information</th>
@@ -570,7 +579,9 @@
                                                         <td class="fw-bold text-center" data-label="Customer ID">
                                                             {{ $index + 1 }}</td>
                                                         <td class="text-center" data-label="Date">
-                                                            {{ $customer->created_at }}</td>
+                                                            {{ $customer->created_at->format('d/m/Y') }}
+                                                        </td>
+                                                            
                                                         <td class="text-start text-center"
                                                             data-label="Customer">
                                                             <strong>Name: {{ $customer->name }}</strong><br>
@@ -1235,15 +1246,7 @@
                                                                     {{ $customer->passport_number }}
                                                                 </div>
 
-                                                                <div class="mb-3">
-                                                                    <strong>Supplier:</strong>
-                                                                    {{ $customer->supplier_name ?? 'N/A' }}
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <strong>Service:</strong>
-                                                                    {{ $customer->service_name ?? 'N/A' }}
-                                                                </div>
-
+                                                               
                                                                 <!-- Passport File -->
                                                                 <div class="mb-3">
                                                                     <strong>Passport File:</strong>
@@ -1281,26 +1284,20 @@
                                                             <!-- Right Column -->
                                                             <div class="col-md-6">
                                                                 <div class="mb-3">
-                                                                    <strong>Country of Residence:</strong>
+                                                                    <strong>Country:</strong>
                                                                     {{ $customer->country_of_residence ?? 'N/A' }}
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <strong>Address:</strong>
                                                                     {{ $customer->address_line_1 ?? 'N/A' }}
                                                                 </div>
-                                                                <div class="mb-3">
-                                                                    <strong>Country:</strong>
-                                                                    {{ $customer->country ?? 'N/A' }}
-                                                                </div>
+                                                             
                                                                 <div class="mb-3">
                                                                     <strong>Note:</strong>
                                                                     {{ $customer->note ?? 'N/A' }}
                                                                 </div>
 
-                                                                <div class="mb-3">
-                                                                    <strong>Agent:</strong>
-                                                                    {{ $customer->agent_name ?? 'N/A' }}
-                                                                </div>
+                                                              
                                                                 <!-- NID File -->
                                                                 <div class="mb-3">
                                                                     <strong>Picture:</strong>

@@ -175,6 +175,35 @@ class PaymentController extends Controller
     }
 
 
+    public function update(Request $request, $id)
+    {
+        // dd($request->all(), $id);
+        // Validate the request
+        $request->validate([
+            'date' => 'required|date',
+            
+            'amount' => 'required|numeric|min:0',
+            'note' => 'nullable|string|max:500',
+        ]);
+
+        $receive = Payment::where('id', $id)->first();
+
+        // Update the receive transaction
+        $receive->update($request->all());
+
+        return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
+    }
+
+    
+    // Remove the specified receive transaction from storage
+    public function destroy($id)
+    {
+        $payment = Payment::where('id', $id)->first();
+        $payment->delete();
+        return redirect()->route('payments.index')->with('success', 'Transaction deleted successfully.');
+    }
+
+
     // Display a listing of the receives
     public function index()
     {

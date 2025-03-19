@@ -135,33 +135,30 @@ class ReceiveController extends Controller
     }
 
     // Update the specified receive transaction in storage
-    public function update(Request $request, Receive $receive)
+    public function update(Request $request, $id)
     {
+        // dd($request->all(), $id);
         // Validate the request
         $request->validate([
             'date' => 'required|date',
-            'receive_type' => 'required|in:customer,others',
-            'customer_id' => 'nullable|exists:customers,id',
-            'customer_name' => 'nullable|string|max:255',
-            'contract_invoice' => 'nullable|string|max:255',
-            'agent_contract' => 'nullable|string|max:255',
-            'transaction_method' => 'required|in:cash,bank',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:20',
-            'branch_name' => 'nullable|string|max:255',
+            
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string|max:500',
         ]);
 
+        $receive = Receive::where('id', $id)->first();
+
         // Update the receive transaction
         $receive->update($request->all());
 
-        return redirect()->route('receives.index')->with('success', 'Transaction updated successfully.');
+        return redirect()->route('receives.index')->with('success', 'Receive updated successfully.');
     }
 
     // Remove the specified receive transaction from storage
-    public function destroy(Receive $receive)
+    public function destroy($id, Request $request)
     {
+        // dd($id, $request->all());
+        $receive = Receive::where('id', $id)->first();
         $receive->delete();
         return redirect()->route('receives.index')->with('success', 'Transaction deleted successfully.');
     }

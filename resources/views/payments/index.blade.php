@@ -217,13 +217,13 @@
                                             <th scope="col" class="text-center">Transaction Method</th>
                                             <th scope="col" class="text-center">Amount</th>
                                             <th scope="col" class="text-center">Note</th>
-                                            {{-- <th scope="col">Actions</th> --}}
+                                            <th scope="col">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($payments as $receive)
                                             <tr>
-                                                <td>{{ $receive->date }}</td>
+                                                <td>{{ date('d-m-y', strtotime($receive->date)) }}</td>
                                                 <td>{{ ucfirst($receive->receive_type) }}</td>
                                                 <td>{{ $receive->customer_name }}</td>
 
@@ -231,14 +231,31 @@
                                                 <td class="fw-bold text-success">
                                                     {{ number_format($receive->amount, 2) }}</td>
                                                 <td>{{ $receive->note }}</td>
-                                                {{-- <td>
-                                                    <a href="{{ route('receives.edit', $receive->id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                                    <form action="{{ route('receives.destroy', $receive->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                                                <td>
+                                                    {{-- <a href="{{ route('receives.edit', $receive->id) }}" class="btn btn-sm btn-outline-primary">Edit</a> --}}
+                                                    <button class="btn btn-sm btn-outline-primary edit-receive-btn" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#editReceiveModal" 
+                                                            data-id="{{ $receive->id }}" 
+                                                            data-date="{{ $receive->date }}" 
+                                                            data-receive_type="{{ $receive->receive_type }}"
+                                                            data-customer_id="{{ $receive->customer_id }}"
+                                                            data-customer_name="{{ $receive->customer_name }}"
+                                                            data-transaction_method="{{ $receive->transaction_method }}"
+                                                            data-bank_name="{{ $receive->bank_name }}"
+                                                            data-account_number="{{ $receive->account_number }}"
+                                                            data-branch_name="{{ $receive->branch_name }}"
+                                                            data-amount="{{ $receive->amount }}"
+                                                            data-note="{{ $receive->note }}">
+                                                        Edit
+                                                    </button>
+
+                                                    <form action="{{ route('payments.destroy', $receive->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                                     </form>
-                                                </td> --}}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -253,6 +270,100 @@
             </div>
         </div>
     </div>
+
+
+        <!-- Edit Receive Modal -->
+        <div class="modal fade" id="editReceiveModal" tabindex="-1" aria-labelledby="editReceiveModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="editReceiveModalLabel">
+                            <i class="bi bi-pencil-square"></i> Edit Payment Details
+                        </h5>
+                        <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <form id="editReceiveForm" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" id="edit_receive_id">
+    
+                            <!-- Readonly Fields -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="edit_date" class="form-label fw-bold">Date</label>
+                                    <input type="date" class="form-control" id="edit_date" name="date">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="edit_receive_type" class="form-label fw-bold">Receive Type</label><br>
+                                    <select class="form-select" id="edit_receive_type" name="receive_type" required disabled>
+                                        <option value="customer">Customer</option>
+                                        <option value="others">Others</option>
+                                    </select>
+                                </div>
+                            </div>
+    
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="edit_customer_id" class="form-label fw-bold">Customer</label><br>
+                                    <select class="form-select" id="edit_customer_id" name="customer_id" disabled>
+                                        <option value="">Select a customer</option>
+                                        @foreach ($customers as $customer)
+                                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="edit_transaction_method" class="form-label fw-bold">Transaction Method</label>
+                                    <input type="text" class="form-control" id="edit_transaction_method" readonly>
+                                </div>
+                            </div>
+    
+                            <!-- Bank Details -->
+                            <div class="d-flex g-3 mt-3" id="edit_bank_details" style="display: none;">
+                                <div class="col-md-4">
+                                    <label for="edit_bank_name" class="form-label fw-bold">Bank Name</label>
+                                    <select class="form-select" id="edit_bank_name" name="bank_name" disabled>
+                                        <option value="">Select a bank</option>
+                                        @foreach ($banks as $bank)
+                                            <option value="{{ $bank->id }}">{{ $bank->bank_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="edit_account_number" class="form-label fw-bold">Account Number</label>
+                                    <input type="text" class="form-control" id="edit_account_number" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="edit_branch_name" class="form-label fw-bold">Branch Name</label>
+                                    <input type="text" class="form-control" id="edit_branch_name" readonly>
+                                </div>
+                            </div>
+    
+                            <!-- Editable Fields -->
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="edit_amount" class="form-label fw-bold">Amount</label>
+                                    <input type="number" class="form-control" id="edit_amount" name="amount" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="edit_note" class="form-label fw-bold">Note</label>
+                                    <textarea class="form-control" id="edit_note" name="note" rows="2"></textarea>
+                                </div>
+                            </div>
+    
+                            <!-- Submit Button -->
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Update Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <div id="message" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: none;">
 
@@ -310,6 +421,45 @@
             flatpickr("#date", {
                 dateFormat: "d/m/Y",
                 allowInput: true
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".edit-receive-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    let modal = document.getElementById("editReceiveModal");
+
+                    document.getElementById("edit_receive_id").value = this.getAttribute("data-id");
+                    document.getElementById("edit_date").value = this.getAttribute("data-date");
+                    document.getElementById("edit_receive_type").value = this.getAttribute("data-receive_type");
+                    document.getElementById("edit_customer_id").value = this.getAttribute("data-customer_id");
+                    document.getElementById("edit_transaction_method").value = this.getAttribute("data-transaction_method");
+                    document.getElementById("edit_bank_name").value = this.getAttribute("data-bank_name");
+                    document.getElementById("edit_account_number").value = this.getAttribute("data-account_number");
+                    document.getElementById("edit_branch_name").value = this.getAttribute("data-branch_name");
+                    document.getElementById("edit_amount").value = this.getAttribute("data-amount");
+                    document.getElementById("edit_note").value = this.getAttribute("data-note");
+
+                    // Show bank details if bank is selected
+                    if (this.getAttribute("data-transaction_method") === "bank") {
+                        document.getElementById("edit_bank_details").style.display = "block";
+                    } else {
+                        document.getElementById("edit_bank_details").style.display = "none";
+                    }
+
+                    // Set form action dynamically
+                    let form = document.getElementById("editReceiveForm");
+                    form.action = `/payments/${this.getAttribute("data-id")}`;
+                });
+            });
+
+            // Show/hide bank details based on selection
+            document.getElementById("edit_transaction_method").addEventListener("change", function () {
+                let bankDetails = document.getElementById("edit_bank_details");
+                if (this.value === "bank") {
+                    bankDetails.style.display = "block";
+                } else {
+                    bankDetails.style.display = "none";
+                }
             });
         });
     </script>
