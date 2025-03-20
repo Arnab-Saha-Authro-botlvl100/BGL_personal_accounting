@@ -106,11 +106,11 @@ class ReportController extends Controller
             ->get();    
         // Concatenate all collections
         $merged = collect() // Start with an empty collection
-            ->concat($customers)
+            // ->concat($customers)
             ->concat($receives)
             ->concat($payments)
-            ->concat($tickets)
-            ->concat($contracts);
+            ->concat($tickets);
+            // ->concat($contracts)
     
         // Sort the merged collection by 'created_at'
         $sorted = $merged->sortBy('created_at');
@@ -266,8 +266,8 @@ class ReportController extends Controller
         //  ->concat($customers)
          ->concat($receives)
          ->concat($payments)
-         ->concat($tickets)
-         ->concat($contracts);
+         ->concat($tickets);
+        //  ->concat($contracts)
  
         // Sort the merged collection by 'created_at'
         $sorted = $merged->sortBy('created_at');
@@ -463,8 +463,32 @@ class ReportController extends Controller
     public function receive_payment(){
         $agents = Agent::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
         $suppliers = Supplier::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+        $customers = Customer::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
         
-        return view('reports.receive_payment', compact('agents', 'suppliers'));
+        $user = Auth::id();
+
+        $banks = Transaction::where('transaction_type', 'bank')->where('user', $user)->get();
+
+        $receives = Receive::where('receives.user', $user)
+            ->leftJoin('customers', 'receives.customer_id', '=', 'customers.id')
+            ->select('receives.*', 'customers.name as customer_name')
+            ->get();
+        
+        $payments = Payment::where('payments.user', $user)
+            ->leftJoin('customers', 'payments.customer_id', '=', 'customers.id')
+            ->select('payments.*', 'customers.name as customer_name')
+            ->get();
+        
+        // Merge and sort by date
+        $transactions = $receives->merge($payments)->sortByDesc('date');
+        
+        // dd($transactions);
+        // Calculate totals
+        $totalDebit = $receives->sum('amount');
+        $totalCredit = $payments->sum('amount');
+        
+        return view('reports.receive_payment', compact('agents', 'suppliers', 'customers', 'transactions', 'totalDebit', 'totalCredit', 'banks'));
+        
     }
 
     public function receive_payment_report(Request $request){
@@ -484,36 +508,32 @@ class ReportController extends Controller
 
             // Get the authenticated user ID
             $user = Auth::id();
-            $type = $request->input('type');
+            $customer = $request->input('type');
             $id = null;
-            $opening_balance = null;
-            if ($type == 'agent') {
-                $id = $request->input('agent_id');
-                $opening_balance = DB::table('previous_dues')->where('agent_id', $id)->value('amount');
-            } else if ($type == 'supplier') {
-                $id = $request->input('supplier_id');
-                $opening_balance = DB::table('previous_dues')->where('supplier_id', $id)->value('amount');
+            $banks = Transaction::where('transaction_type', 'bank')->where('user', $user)->get();
 
+            if($customer === 'others'){
+                $receives = Receive::where('receives.user', $user)
+                ->where('receives.receive_type', '=', $customer);
+            
+                $payments = Payment::where('payments.user', $user)
+                ->where('payments.receive_type', '=', $customer);
             }
+           else{
+                
+                // Initialize query builders for each model
+                $receives = Receive::where('receives.user', $user)
+                    ->where('receives.receive_type', '=', 'customer')
+                    ->where('receives.customer_id', '=', $customer)
+                    ->join('customers', 'receives.customer_id', '=', 'customers.id');
+            
+                $payments = Payment::where('payments.user', $user)
+                    ->where('payments.receive_type', '=', 'customer')
+                    ->where('payments.customer_id', '=', $customer)
+                    ->join('customers', 'payments.customer_id', '=', 'customers.id');
+           }
 
-            // Initialize query builders for each model
-            $receives = Receive::where('receives.user', $user)
-                ->join('customers', 'receives.customer_id', '=', 'customers.id');
-
-            $payments = Payment::where('payments.user', $user)
-                ->join('customers', 'payments.customer_id', '=', 'customers.id');
-
-            // Apply agent/supplier filter if type and id are provided
-            if ($type && $id) {
-                if ($type == 'agent') {
-                    $receives->where('customers.agent', $id);
-                    $payments->where('customers.agent', $id);
-                } else if ($type == 'supplier') {
-                    $receives->where('customers.supplier', $id);
-                    $payments->where('customers.supplier', $id);
-                }
-            }
-
+        
             // Apply date-wise search if start_date and end_date are available
             if ($start_date && $end_date) {
                 $receives->whereBetween('receives.date', [$start_date, $end_date]);
@@ -532,6 +552,8 @@ class ReportController extends Controller
             $receivesData = $receives->get();
             $paymentsData = $payments->get();
 
+            $transactions = $receivesData->merge($paymentsData)->sortByDesc('date');
+
             // Calculate totals (example logic, adjust as needed)
             $totalDebit = $receivesData->sum('amount');
             $totalCredit = $paymentsData->sum('amount');
@@ -541,10 +563,10 @@ class ReportController extends Controller
             $html = ViewFacade::make('reports.receive_payment_report', [
                 'start_date' => $start_date,
                 'end_date' => $end_date,
-                'type' => $type,
-                'opening_balance' => $opening_balance,
                 'receivesData' => $receivesData,
                 'paymentsData' => $paymentsData,
+                'transactions' => $transactions,
+                'banks'        => $banks,
                 'totalDebit' => $totalDebit,
                 'totalCredit' => $totalCredit,
             ])->render();

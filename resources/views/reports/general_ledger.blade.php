@@ -250,8 +250,8 @@
                                         <td>{{ $item->customer_id }}</td>
                                         <td>
                                             <strong>{{ $item->name }}</strong><br>
-                                            📞 {{ $item->phone_number }}<br>
-                                            🛂 {{ $item->passport_number }}
+                                             {{ $item->phone_number }}<br>
+                                             {{ $item->passport_number }}
                                         </td>
                                         <td><strong class="text-success">{{ $item->agent_contract }}</strong></td>
                                         <td><strong class="text-danger">{{ $item->supplier_contract }}</strong></td>
@@ -265,11 +265,11 @@
                                         </td>
                                         <td>{{ $item->receive_type }}</td>
                                         <td>
-                                            <strong>{{ $item->contract_invoice }}/{{ $item->customer_name }}</strong><br>
-                                            🏦 {{ $item->transaction_method }}<br>
-                                            🏛 {{ $item->transaction_bank_name }}<br>
-                                            💳 {{ $item->account_number }}/ {{ $item->branch_name }}<br>
-                                            📝 {{ $item->note }}
+                                            <strong>{{ $item->contract_invoice }}-{{ $item->customer_name }}</strong><br>
+                                             {{ $item->transaction_method }}<br>
+                                            {{ $item->transaction_bank_name }}<br>
+                                             {{ $item->account_number }}- {{ $item->branch_name }}<br>
+                                            {{ $item->note }}
                                         </td>
                                         <td><strong class="text-success">{{ $item->amount }}</strong></td>
                                         <td>N/A</td>
@@ -283,11 +283,11 @@
                                         </td>
                                         <td>{{ $item->receive_type }}</td>
                                         <td>
-                                            <strong>{{ $item->contract_invoice }}/{{ $item->customer_name }}</strong><br>
-                                            💳 {{ $item->transaction_method }}<br>
-                                            🏛 {{ $item->transaction_bank_name }}<br>
-                                            🔢 {{ $item->account_number }}/ {{ $item->branch_name }}<br>
-                                            📝 {{ $item->note }}
+                                            <strong>{{ $item->contract_invoice }}-{{ $item->customer_name }}</strong><br>
+                                             {{ $item->transaction_method }}<br>
+                                             {{ $item->transaction_bank_name }}<br>
+                                             {{ $item->account_number }}- {{ $item->branch_name }}<br>
+                                             {{ $item->note }}
                                         </td>
                                         <td>N/A</td>
                                         <td><strong class="text-danger">{{ $item->amount }}</strong></td>
@@ -301,9 +301,9 @@
                                         </td>
                                         <td>{{ $item->ticket_no }}</td>
                                         <td>
-                                            ✈️ {{ $item->flight_no }}<br>
-                                            🏷️ {{ $item->airline }} / PNR {{ $item->pnr_no }}<br>
-                                            📍 {{ $item->sector }}
+                                             {{ $item->flight_no }}<br>
+                                             {{ $item->airline }} / PNR {{ $item->pnr_no }}<br>
+                                             {{ $item->sector }}
                                         </td>
                                         <td><strong class="text-warning">{{ $item->debit }}</strong></td>
                                         <td><strong class="text-primary">{{ $item->credit }}</strong></td>
@@ -317,9 +317,9 @@
                                         </td>
                                         <td>{{ $item->invoice_no }}</td>
                                         <td>
-                                            👤 Agent: <strong>{{ $item->agent_name }}</strong><br>
-                                            🚛 Supplier: <strong>{{ $item->supplier_name }}</strong><br>
-                                            👨‍💼 Customer: <strong>{{ $item->customer_name }}</strong>
+                                             Agent: <strong>{{ $item->agent_name }}</strong><br>
+                                             Supplier: <strong>{{ $item->supplier_name }}</strong><br>
+                                             Customer: <strong>{{ $item->customer_name }}</strong>
                                         </td>
                                         <td><strong class="text-success">{{ $item->agent_price }}</strong></td>
                                         <td><strong class="text-danger">{{ $item->supplier_price }}</strong></td>
