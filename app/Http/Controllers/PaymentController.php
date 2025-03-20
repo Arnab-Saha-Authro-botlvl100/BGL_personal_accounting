@@ -95,7 +95,8 @@ class PaymentController extends Controller
     // }
     public function store(Request $request)
     {
-        // Validate the request
+        if(Auth::check()){
+             // Validate the request
         $request->validate([
             'date' => 'required|date_format:d/m/Y', // Accepts dd/mm/yyyy format
             'receive_type' => 'required|in:customer,others',
@@ -172,12 +173,17 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to receive payment. Please try again. ' . $e->getMessage()], 500);
         }
+        }
+        else{
+            return redirect()->route('register');
+        }
     }
 
 
     public function update(Request $request, $id)
     {
-        // dd($request->all(), $id);
+        if(Auth::check()){
+             // dd($request->all(), $id);
         // Validate the request
         $request->validate([
             'date' => 'required|date',
@@ -192,22 +198,33 @@ class PaymentController extends Controller
         $receive->update($request->all());
 
         return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
+        }
+        else{
+            return redirect()->route('register');
+        }
+       
     }
 
     
     // Remove the specified receive transaction from storage
     public function destroy($id)
     {
-        $payment = Payment::where('id', $id)->first();
-        $payment->delete();
-        return redirect()->route('payments.index')->with('success', 'Transaction deleted successfully.');
+        if(Auth::check()){
+            $payment = Payment::where('id', $id)->first();
+            $payment->delete();
+            return redirect()->route('payments.index')->with('success', 'Transaction deleted successfully.');
+        }
+       else{
+        return redirect()->route('register');
+       }
     }
 
 
     // Display a listing of the receives
     public function index()
     {
-        $payments = Payment::where('user', Auth::id())
+        if(Auth::check()){
+            $payments = Payment::where('user', Auth::id())
             ->orderBy('created_at', 'DESC') // Correct case
             ->get();
         $customers = Customer::where('customers.user', Auth::id())
@@ -224,11 +241,17 @@ class PaymentController extends Controller
                     ])->get();
         // dd($customers);
         return view('payments.index', compact('payments', 'customers', 'banks')); // Adjust the view path as needed
+        }
+        else{
+            return redirect()->route('register');
+        }
+        
     }
 
     public function receipt($customer_id, $payment_id)
     {
-        // Fetch customer details
+        if(Auth::check()){
+             // Fetch customer details
         $customer = Customer::findOrFail($customer_id);
 
         // Get the latest payment for the customer
@@ -241,6 +264,11 @@ class PaymentController extends Controller
         $remaining = (int) $customer->supplier_contract - $totalPaid;
 
         return view('payments.receipt', compact('customer', 'latestPayment', 'totalPaid', 'remaining'));
+        }
+        else{
+            return redirect()->route('register');
+        }
+       
     }
 
     

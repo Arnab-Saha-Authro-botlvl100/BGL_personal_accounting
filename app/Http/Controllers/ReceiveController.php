@@ -13,13 +13,20 @@ class ReceiveController extends Controller
     // Show the form for creating a new receive transaction
     public function create()
     {
-        $customers = Customer::all(); // Fetch all customers
-        return view('receives.create', compact('customers')); // Adjust the view path as needed
+        if(Auth::user()){
+            $customers = Customer::all(); // Fetch all customers
+            return view('receives.create', compact('customers')); // Adjust the view path as needed
+        }
+        else{
+            return redirect()->route('register');
+        }
+      
     }
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        if(Auth::user()){
+            // dd($request->all());
         // Validate the request
         $request->validate([
             'date' => 'required|date_format:d/m/Y', // Accepts dd/mm/yyyy format
@@ -99,6 +106,10 @@ class ReceiveController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to receive. Please try again. ' . $e->getMessage()], 500);
         }
+        }
+        else{
+            return redirect()->route('register');
+        }
     }
     
     
@@ -106,61 +117,84 @@ class ReceiveController extends Controller
     // Display a listing of the receives
     public function index()
     {
-        // $receives = Receive::all(); // Fetch all receive transactions
-        $receives = Receive::where('user', Auth::id())
+        if(Auth::user()){
+              // $receives = Receive::all(); // Fetch all receive transactions
+            $receives = Receive::where('user', Auth::id())
             ->orderBy('created_at', 'DESC') // Correct case
             ->get();
             
-        $customers = Customer::where('customers.user', Auth::id())
-                    ->where('customers.is_delete', 0)
-                    ->where('customers.is_active', 1)
-                    ->join('contracts', 'customers.contract_id', '=', 'contracts.id')
-                    ->leftjoin('agents', 'customers.agent', '=', 'agents.id')
-                    ->select('customers.name', 'customers.customer_id','customers.id', 'contracts.invoice_no', 'customers.agent_contract', 'agents.name as agent_name')
-                    ->get();
-        $banks = Transaction::where([
-                        ['is_delete', 0],
-                        ['transaction_type', 'bank'],
-                        ['user', Auth::id()]
-                    ])->get();
-        // dd($receives);
-        return view('receives.index', compact('receives', 'customers', 'banks')); // Adjust the view path as needed
+            $customers = Customer::where('customers.user', Auth::id())
+                        ->where('customers.is_delete', 0)
+                        ->where('customers.is_active', 1)
+                        ->join('contracts', 'customers.contract_id', '=', 'contracts.id')
+                        ->leftjoin('agents', 'customers.agent', '=', 'agents.id')
+                        ->select('customers.name', 'customers.customer_id','customers.id', 'contracts.invoice_no', 'customers.agent_contract', 'agents.name as agent_name')
+                        ->get();
+            $banks = Transaction::where([
+                            ['is_delete', 0],
+                            ['transaction_type', 'bank'],
+                            ['user', Auth::id()]
+                        ])->get();
+            // dd($receives);
+            return view('receives.index', compact('receives', 'customers', 'banks')); // Adjust the view path as needed
+        }
+        else{
+            return redirect()->route('register');
+        }
+      
     }
 
     // Show the form for editing the specified receive transaction
     public function edit(Receive $receive)
     {
-        $customers = Customer::all(); // Fetch all customers
-        return view('receives.edit', compact('receive', 'customers')); // Adjust the view path as needed
+        if(Auth::user()){
+            $customers = Customer::all(); // Fetch all customers
+            return view('receives.edit', compact('receive', 'customers')); // Adjust the view path as needed
+        }
+       else{
+          return redirect()->route('register');
+       }
     }
 
     // Update the specified receive transaction in storage
     public function update(Request $request, $id)
     {
-        // dd($request->all(), $id);
-        // Validate the request
-        $request->validate([
-            'date' => 'required|date',
-            
-            'amount' => 'required|numeric|min:0',
-            'note' => 'nullable|string|max:500',
-        ]);
+        if(Auth::user()){
+            // dd($request->all(), $id);
+            // Validate the request
+            $request->validate([
+                'date' => 'required|date',
+                
+                'amount' => 'required|numeric|min:0',
+                'note' => 'nullable|string|max:500',
+            ]);
 
-        $receive = Receive::where('id', $id)->first();
+            $receive = Receive::where('id', $id)->first();
 
-        // Update the receive transaction
-        $receive->update($request->all());
+            // Update the receive transaction
+            $receive->update($request->all());
 
-        return redirect()->route('receives.index')->with('success', 'Receive updated successfully.');
+            return redirect()->route('receives.index')->with('success', 'Receive updated successfully.');
+        }
+        else{
+            return redirect()->route('register');
+        }
+        
     }
 
     // Remove the specified receive transaction from storage
     public function destroy($id, Request $request)
     {
-        // dd($id, $request->all());
-        $receive = Receive::where('id', $id)->first();
-        $receive->delete();
-        return redirect()->route('receives.index')->with('success', 'Transaction deleted successfully.');
+        if(Auth::user()){
+             // dd($id, $request->all());
+            $receive = Receive::where('id', $id)->first();
+            $receive->delete();
+            return redirect()->route('receives.index')->with('success', 'Transaction deleted successfully.');
+        }
+        else{
+            return redirect()->route('register');
+        }
+       
     }
 
     

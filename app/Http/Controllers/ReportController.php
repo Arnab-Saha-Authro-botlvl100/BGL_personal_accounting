@@ -23,269 +23,291 @@ class ReportController extends Controller
     //
     public function statement()
     {
-        // Get all bank transactions first
-        $bankTransactions = Transaction::where('is_delete', 0)
-            ->where('user', Auth::id())
-            ->where('transaction_type', 'bank')
-            ->get();
-    
-        // Get all cash transactions directly
-        $cashTransactions = Transaction::where('is_delete', 0)
-            ->where('user', Auth::id())
-            ->where('transaction_type', 'cash')
-            ->get();
-    
-        // Get all bank transaction IDs
-        $bankIds = $bankTransactions->pluck('id')->toArray();
+        if(Auth::user()){
+            // Get all bank transactions first
+                $bankTransactions = Transaction::where('is_delete', 0)
+                ->where('user', Auth::id())
+                ->where('transaction_type', 'bank')
+                ->get();
+
+            // Get all cash transactions directly
+            $cashTransactions = Transaction::where('is_delete', 0)
+                ->where('user', Auth::id())
+                ->where('transaction_type', 'cash')
+                ->get();
+
+            // Get all bank transaction IDs
+            $bankIds = $bankTransactions->pluck('id')->toArray();
+            
+            // Get total receive amounts
+            $receives = Receive::where('transaction_method', 'bank')
+                ->whereIn('bank_name', $bankIds)
+                ->groupBy('bank_name')
+                ->selectRaw('bank_name, SUM(amount) as total_receive')
+                ->pluck('total_receive', 'bank_name');
+
+            // Get total payment amounts
+            $payments = Payment::where('transaction_method', 'bank')
+                ->whereIn('bank_name', $bankIds)
+                ->groupBy('bank_name')
+                ->selectRaw('bank_name, SUM(amount) as total_payment')
+                ->pluck('total_payment', 'bank_name');
+
+            // Attach totals and balance to bank transactions
+            foreach ($bankTransactions as $transaction) {
+                $transaction->total_receive = $receives[$transaction->id] ?? 0;
+                $transaction->total_payment = $payments[$transaction->id] ?? 0;
+                $transaction->balance = $transaction->opening_balance + $transaction->total_receive - $transaction->total_payment;
+            }
+            // Attach totals and balance to bank transactions
+            foreach ($cashTransactions as $transaction) {
+                $transaction->total_receive = Receive::where('transaction_method', 'cash')->where('user', Auth::id())->sum('amount');
+                $transaction->total_payment = Payment::where('transaction_method', 'cash')->where('user', Auth::id())->sum('amount');
+                $transaction->balance = $transaction->opening_balance + $transaction->total_receive - $transaction->total_payment;
+            }
+            // dd($cashTransactions);
+
+            return view('reports.statement', compact('bankTransactions', 'cashTransactions'));
+        }
+        else{
+            return redirect()->route('register');
+        }
         
-        // Get total receive amounts
-        $receives = Receive::where('transaction_method', 'bank')
-            ->whereIn('bank_name', $bankIds)
-            ->groupBy('bank_name')
-            ->selectRaw('bank_name, SUM(amount) as total_receive')
-            ->pluck('total_receive', 'bank_name');
-    
-        // Get total payment amounts
-        $payments = Payment::where('transaction_method', 'bank')
-            ->whereIn('bank_name', $bankIds)
-            ->groupBy('bank_name')
-            ->selectRaw('bank_name, SUM(amount) as total_payment')
-            ->pluck('total_payment', 'bank_name');
-    
-        // Attach totals and balance to bank transactions
-        foreach ($bankTransactions as $transaction) {
-            $transaction->total_receive = $receives[$transaction->id] ?? 0;
-            $transaction->total_payment = $payments[$transaction->id] ?? 0;
-            $transaction->balance = $transaction->opening_balance + $transaction->total_receive - $transaction->total_payment;
-        }
-        // Attach totals and balance to bank transactions
-        foreach ($cashTransactions as $transaction) {
-            $transaction->total_receive = Receive::where('transaction_method', 'cash')->where('user', Auth::id())->sum('amount');
-            $transaction->total_payment = Payment::where('transaction_method', 'cash')->where('user', Auth::id())->sum('amount');
-            $transaction->balance = $transaction->opening_balance + $transaction->total_receive - $transaction->total_payment;
-        }
-        // dd($cashTransactions);
-    
-        return view('reports.statement', compact('bankTransactions', 'cashTransactions'));
     }
     
 
     public function general_ledger(){
-        // Fetch data from each table
-        $customers = Customer::where('user', Auth::id())->where('is_delete', 0)->get();
-        $agents = Agent::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
-        $suppliers = Supplier::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+        if(Auth::user()){
+            // Fetch data from each table
+            $customers = Customer::where('user', Auth::id())->where('is_delete', 0)->get();
+            $agents = Agent::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+            $suppliers = Supplier::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+            
+            $receives = Receive::where('receives.user', Auth::id())
+                ->leftJoin('transactions', 'receives.bank_name', '=', 'transactions.id')
+                ->select('receives.*', 'transactions.bank_name as transaction_bank_name')
+                ->get();
+
+            // Fetch payments with a left join on transactions
+            $payments = Payment::where('payments.user', Auth::id())
+                ->leftJoin('transactions', 'payments.bank_name', '=', 'transactions.id')
+                ->select('payments.*', 'transactions.bank_name as transaction_bank_name')
+                ->get();
+
+            $tickets = Ticket::where('tickets.user', Auth::id())
+                ->where('tickets.is_delete', 0)
+                ->leftJoin('customers', 'tickets.customer_id', '=', 'customers.id')
+                ->select('tickets.*', 'customers.name as customer_name', 'customers.agent_contract as debit', 'customers.supplier_contract as credit') // Select customer name
+                ->get(); 
+
+            $contracts = Contract::where('contracts.user', Auth::id())
+                ->leftJoin('agents', 'contracts.agent', '=', 'agents.id')
+                ->leftJoin('suppliers', 'contracts.supplier', '=', 'suppliers.id')
+                ->leftJoin('customers', 'contracts.customer_id', '=', 'customers.id')
+                ->select(
+                    'contracts.*',
+                    'agents.name as agent_name',
+                    'suppliers.name as supplier_name',
+                    'customers.name as customer_name'
+                )
+                ->get();    
+            // Concatenate all collections
+            $merged = collect() // Start with an empty collection
+                // ->concat($customers)
+                ->concat($receives)
+                ->concat($payments)
+                ->concat($tickets);
+                // ->concat($contracts)
         
-        $receives = Receive::where('receives.user', Auth::id())
-            ->leftJoin('transactions', 'receives.bank_name', '=', 'transactions.id')
-            ->select('receives.*', 'transactions.bank_name as transaction_bank_name')
-            ->get();
+            // Sort the merged collection by 'created_at'
+            $sorted = $merged->sortBy('created_at');
+        
+            // If you need to reset the keys (optional)
+            $sorted = $sorted->values();
+        
+            // dd($sorted);
+            // Return or process the sorted collection
+            return view('reports.general_ledger', compact('sorted', 'customers', 'agents', 'suppliers'));
+        }
+        else{
+            return redirect()->route('register');
 
-        // Fetch payments with a left join on transactions
-        $payments = Payment::where('payments.user', Auth::id())
-            ->leftJoin('transactions', 'payments.bank_name', '=', 'transactions.id')
-            ->select('payments.*', 'transactions.bank_name as transaction_bank_name')
-            ->get();
-
-        $tickets = Ticket::where('tickets.user', Auth::id())
-            ->where('tickets.is_delete', 0)
-            ->leftJoin('customers', 'tickets.customer_id', '=', 'customers.id')
-            ->select('tickets.*', 'customers.name as customer_name', 'customers.agent_contract as debit', 'customers.supplier_contract as credit') // Select customer name
-            ->get(); 
-
-        $contracts = Contract::where('contracts.user', Auth::id())
-            ->leftJoin('agents', 'contracts.agent', '=', 'agents.id')
-            ->leftJoin('suppliers', 'contracts.supplier', '=', 'suppliers.id')
-            ->leftJoin('customers', 'contracts.customer_id', '=', 'customers.id')
-            ->select(
-                'contracts.*',
-                'agents.name as agent_name',
-                'suppliers.name as supplier_name',
-                'customers.name as customer_name'
-            )
-            ->get();    
-        // Concatenate all collections
-        $merged = collect() // Start with an empty collection
-            // ->concat($customers)
-            ->concat($receives)
-            ->concat($payments)
-            ->concat($tickets);
-            // ->concat($contracts)
-    
-        // Sort the merged collection by 'created_at'
-        $sorted = $merged->sortBy('created_at');
-    
-        // If you need to reset the keys (optional)
-        $sorted = $sorted->values();
-    
-        // dd($sorted);
-        // Return or process the sorted collection
-        return view('reports.general_ledger', compact('sorted', 'customers', 'agents', 'suppliers'));
+        }
     }
 
     
     public function general_ledger_modified(Request $request)
     {
-        // Validate request inputs
-        $request->validate([
-            'customer' => 'nullable|integer|exists:customers,id',
-            'agent' => 'nullable|integer|exists:agents,id',
-            'supplier' => 'nullable|integer|exists:suppliers,id',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
-        ]);
-    
-        // Convert dates into MySQL-compatible format, or set null if not provided
-        $start_date = $request->filled('start_date') ? Carbon::parse($request->start_date)->format('Y-m-d') : null;
-        $end_date = $request->filled('end_date') ? Carbon::parse($request->end_date)->format('Y-m-d') : null;
-    
-        // Initialize collections
-        $receives = collect();
-        $payments = collect();
-        $tickets = collect();
-        $contracts = collect();
-        $customers = collect();
-    
-        if ($request->filled('customer')) {
-            // If a specific customer is provided, fetch only that customer
-            $customers = Customer::where('id', $request->customer)->get();
-            $receives = Receive::where('customer_id', $request->customer);
-            $payments = Payment::where('customer_id', $request->customer);
-            $tickets = Ticket::where('customer_id', $request->customer);
-            $contracts = Contract::where('customer_id', $request->customer);
-        } else {
-            // dd($request->all());
-            // Query customers based on agent and/or supplier
-            $customerQuery = Customer::where('is_delete', 0)
-                ->where('is_active', 1)
-                ->where('user', Auth::id());
-            // dd($customerQuery);
-    
-            if ($request->filled('agent') && !$request->filled('supplier')) {
-                // dd('agent');
-                $customerQuery->where('agent', $request->agent);
-            }
-    
-            if ($request->filled('supplier') && !$request->filled('agent')) {
-                // dd('supplier');
-                $customerQuery->where('supplier', $request->supplier);
-            }
-    
-            if ($request->filled('agent') && $request->filled('supplier')) {
-                // dd('both');
-                $customerQuery->where('agent', $request->agent)
-                    ->where('supplier', $request->supplier);
-            }
-    
-            // Retrieve full customer collection
-            $customers = $customerQuery->get();
-            $customerIds = $customers->pluck('id');
+        if(Auth::user()){
+            // Validate request inputs
+            $request->validate([
+                'customer' => 'nullable|integer|exists:customers,id',
+                'agent' => 'nullable|integer|exists:agents,id',
+                'supplier' => 'nullable|integer|exists:suppliers,id',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date',
+            ]);
+        
+            // Convert dates into MySQL-compatible format, or set null if not provided
+            $start_date = $request->filled('start_date') ? Carbon::parse($request->start_date)->format('Y-m-d') : null;
+            $end_date = $request->filled('end_date') ? Carbon::parse($request->end_date)->format('Y-m-d') : null;
+        
+            // Initialize collections
+            $receives = collect();
+            $payments = collect();
+            $tickets = collect();
+            $contracts = collect();
+            $customers = collect();
+        
+            if ($request->filled('customer')) {
+                // If a specific customer is provided, fetch only that customer
+                $customers = Customer::where('id', $request->customer)->get();
+                $receives = Receive::where('customer_id', $request->customer);
+                $payments = Payment::where('customer_id', $request->customer);
+                $tickets = Ticket::where('customer_id', $request->customer);
+                $contracts = Contract::where('customer_id', $request->customer);
+            } else {
+                // dd($request->all());
+                // Query customers based on agent and/or supplier
+                $customerQuery = Customer::where('is_delete', 0)
+                    ->where('is_active', 1)
+                    ->where('user', Auth::id());
+                // dd($customerQuery);
+        
+                if ($request->filled('agent') && !$request->filled('supplier')) {
+                    // dd('agent');
+                    $customerQuery->where('agent', $request->agent);
+                }
+        
+                if ($request->filled('supplier') && !$request->filled('agent')) {
+                    // dd('supplier');
+                    $customerQuery->where('supplier', $request->supplier);
+                }
+        
+                if ($request->filled('agent') && $request->filled('supplier')) {
+                    // dd('both');
+                    $customerQuery->where('agent', $request->agent)
+                        ->where('supplier', $request->supplier);
+                }
+        
+                // Retrieve full customer collection
+                $customers = $customerQuery->get();
+                $customerIds = $customers->pluck('id');
 
-            // dd($customers);
-            // Query related records for those customers
-            $receives = Receive::whereIn('customer_id', $customerIds);
-            $payments = Payment::whereIn('customer_id', $customerIds);
-            $tickets = Ticket::whereIn('customer_id', $customerIds);
-            $contracts = Contract::whereIn('customer_id', $customerIds);
+                // dd($customers);
+                // Query related records for those customers
+                $receives = Receive::whereIn('customer_id', $customerIds);
+                $payments = Payment::whereIn('customer_id', $customerIds);
+                $tickets = Ticket::whereIn('customer_id', $customerIds);
+                $contracts = Contract::whereIn('customer_id', $customerIds);
+
+            }
+        
+            // Apply date filters if provided
+            if ($start_date) {
+                $receives->whereDate('date', '>=', $start_date);
+                $payments->whereDate('date', '>=', $start_date);
+                $tickets->whereDate('flight_date', '>=', $start_date);
+                $contracts->whereDate('date', '>=', $start_date);
+            }
+        
+            if ($end_date) {
+                $receives->whereDate('date', '<=', $end_date);
+                $payments->whereDate('date', '<=', $end_date);
+                $tickets->whereDate('flight_date', '<=', $end_date);
+                $contracts->whereDate('date', '<=', $end_date);
+            }
+            
+            $receives = $receives->where('receives.user', Auth::id())
+                ->leftJoin('transactions', 'receives.bank_name', '=', 'transactions.id')
+                ->select('receives.*', 'transactions.bank_name as transaction_bank_name')
+                ->get();
+
+            $payments = $payments->where('payments.user', Auth::id())
+                ->leftJoin('transactions', 'payments.bank_name', '=', 'transactions.id')
+                ->select('payments.*', 'transactions.bank_name as transaction_bank_name')
+                ->get();
+
+            $tickets = Ticket::where('tickets.user', Auth::id())
+                ->where('tickets.is_delete', 0)
+                ->when($request->filled('customer'), function ($query) use ($request) {
+                    return $query->where('tickets.customer_id', $request->customer);
+                })
+                ->when($request->filled('agent'), function ($query) use ($request) {
+                    return $query->where('customers.agent', $request->agent);
+                })
+                ->when($request->filled('supplier'), function ($query) use ($request) {
+                    return $query->where('customers.supplier', $request->supplier);
+                })
+                ->leftJoin('customers', 'tickets.customer_id', '=', 'customers.id')
+                ->select(
+                    'tickets.*',
+                    'customers.name as customer_name',
+                    'customers.agent_contract as debit',
+                    'customers.supplier_contract as credit'
+                )
+                ->get();
+            
+            
+
+            $contracts = Contract::where('contracts.user', Auth::id())
+                ->when($request->filled('customer'), function ($query) use ($request) {
+                    return $query->where('contracts.customer_id', $request->customer);
+                })
+                ->when($request->filled('agent'), function ($query) use ($request) {
+                    return $query->where('contracts.agent', $request->agent);
+                })
+                ->when($request->filled('supplier'), function ($query) use ($request) {
+                    return $query->where('contracts.supplier', $request->supplier);
+                })
+                ->leftJoin('agents', 'contracts.agent', '=', 'agents.id')
+                ->leftJoin('suppliers', 'contracts.supplier', '=', 'suppliers.id')
+                ->leftJoin('customers', 'contracts.customer_id', '=', 'customers.id')
+                ->select(
+                    'contracts.*',
+                    'agents.name as agent_name',
+                    'suppliers.name as supplier_name',
+                    'customers.name as customer_name'
+                )
+                ->get();
+            
+            
+
+
+            // Concatenate all collections
+            $merged = collect() // Start with an empty collection
+            //  ->concat($customers)
+            ->concat($receives)
+            ->concat($payments)
+            ->concat($tickets);
+            //  ->concat($contracts)
+
+            // Sort the merged collection by 'created_at'
+            $sorted = $merged->sortBy('created_at');
+        
+            // If you need to reset the keys (optional)
+            $sorted = $sorted->values();
+        
+            // dd($sorted);
+            $htmlpart = ViewFacade::make('reports.report', [
+                'sorted' => $sorted,
+            ])->render();
+
+            return response()->json(['html' => $htmlpart]);
+        }
+        else{
+            return redirect()->route('register');
 
         }
-    
-        // Apply date filters if provided
-        if ($start_date) {
-            $receives->whereDate('date', '>=', $start_date);
-            $payments->whereDate('date', '>=', $start_date);
-            $tickets->whereDate('flight_date', '>=', $start_date);
-            $contracts->whereDate('date', '>=', $start_date);
-        }
-    
-        if ($end_date) {
-            $receives->whereDate('date', '<=', $end_date);
-            $payments->whereDate('date', '<=', $end_date);
-            $tickets->whereDate('flight_date', '<=', $end_date);
-            $contracts->whereDate('date', '<=', $end_date);
-        }
-        
-        $receives = $receives->where('receives.user', Auth::id())
-            ->leftJoin('transactions', 'receives.bank_name', '=', 'transactions.id')
-            ->select('receives.*', 'transactions.bank_name as transaction_bank_name')
-            ->get();
-
-        $payments = $payments->where('payments.user', Auth::id())
-            ->leftJoin('transactions', 'payments.bank_name', '=', 'transactions.id')
-            ->select('payments.*', 'transactions.bank_name as transaction_bank_name')
-            ->get();
-
-        $tickets = Ticket::where('tickets.user', Auth::id())
-            ->where('tickets.is_delete', 0)
-            ->when($request->filled('customer'), function ($query) use ($request) {
-                return $query->where('tickets.customer_id', $request->customer);
-            })
-            ->when($request->filled('agent'), function ($query) use ($request) {
-                return $query->where('customers.agent', $request->agent);
-            })
-            ->when($request->filled('supplier'), function ($query) use ($request) {
-                return $query->where('customers.supplier', $request->supplier);
-            })
-            ->leftJoin('customers', 'tickets.customer_id', '=', 'customers.id')
-            ->select(
-                'tickets.*',
-                'customers.name as customer_name',
-                'customers.agent_contract as debit',
-                'customers.supplier_contract as credit'
-            )
-            ->get();
-        
-        
-
-        $contracts = Contract::where('contracts.user', Auth::id())
-            ->when($request->filled('customer'), function ($query) use ($request) {
-                return $query->where('contracts.customer_id', $request->customer);
-            })
-            ->when($request->filled('agent'), function ($query) use ($request) {
-                return $query->where('contracts.agent', $request->agent);
-            })
-            ->when($request->filled('supplier'), function ($query) use ($request) {
-                return $query->where('contracts.supplier', $request->supplier);
-            })
-            ->leftJoin('agents', 'contracts.agent', '=', 'agents.id')
-            ->leftJoin('suppliers', 'contracts.supplier', '=', 'suppliers.id')
-            ->leftJoin('customers', 'contracts.customer_id', '=', 'customers.id')
-            ->select(
-                'contracts.*',
-                'agents.name as agent_name',
-                'suppliers.name as supplier_name',
-                'customers.name as customer_name'
-            )
-            ->get();
-        
-        
-
-
-         // Concatenate all collections
-        $merged = collect() // Start with an empty collection
-        //  ->concat($customers)
-         ->concat($receives)
-         ->concat($payments)
-         ->concat($tickets);
-        //  ->concat($contracts)
- 
-        // Sort the merged collection by 'created_at'
-        $sorted = $merged->sortBy('created_at');
-    
-        // If you need to reset the keys (optional)
-        $sorted = $sorted->values();
-    
-        // dd($sorted);
-        $htmlpart = ViewFacade::make('reports.report', [
-            'sorted' => $sorted,
-        ])->render();
-
-        return response()->json(['html' => $htmlpart]);
-        
     }
 
     public function cashbook(){
-        return view('reports.cashbook');
+        if(Auth::user()){
+            return view('reports.cashbook');
+        }
+        else{
+            return redirect()->route('register');
+        }
     }
 
     // public function cashbook_report(Request $request)
@@ -449,7 +471,7 @@ class ReportController extends Controller
 
             return response()->json(['html' => $html]);
         } else {
-            return view('welcome');
+            return redirect()->route('register');
         }
     }
 
@@ -460,35 +482,41 @@ class ReportController extends Controller
         return $bank ? $bank->bank_name : 'Unknown Bank';
     }
 
-    public function receive_payment(){
-        $agents = Agent::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
-        $suppliers = Supplier::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
-        $customers = Customer::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
-        
-        $user = Auth::id();
-
-        $banks = Transaction::where('transaction_type', 'bank')->where('user', $user)->get();
-
-        $receives = Receive::where('receives.user', $user)
-            ->leftJoin('customers', 'receives.customer_id', '=', 'customers.id')
-            ->select('receives.*', 'customers.name as customer_name')
-            ->get();
-        
-        $payments = Payment::where('payments.user', $user)
-            ->leftJoin('customers', 'payments.customer_id', '=', 'customers.id')
-            ->select('payments.*', 'customers.name as customer_name')
-            ->get();
-        
-        // Merge and sort by date
-        $transactions = $receives->merge($payments)->sortByDesc('date');
-        
-        // dd($transactions);
-        // Calculate totals
-        $totalDebit = $receives->sum('amount');
-        $totalCredit = $payments->sum('amount');
-        
-        return view('reports.receive_payment', compact('agents', 'suppliers', 'customers', 'transactions', 'totalDebit', 'totalCredit', 'banks'));
-        
+    public function receive_payment()
+    {
+        if(Auth::user()){
+            $agents = Agent::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+            $suppliers = Supplier::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+            $customers = Customer::where('user', Auth::id())->where('is_delete', 0)->where('is_active', 1)->get();
+            
+            $user = Auth::id();
+    
+            $banks = Transaction::where('transaction_type', 'bank')->where('user', $user)->get();
+    
+            $receives = Receive::where('receives.user', $user)
+                ->leftJoin('customers', 'receives.customer_id', '=', 'customers.id')
+                ->select('receives.*', 'customers.name as customer_name')
+                ->get();
+            
+            $payments = Payment::where('payments.user', $user)
+                ->leftJoin('customers', 'payments.customer_id', '=', 'customers.id')
+                ->select('payments.*', 'customers.name as customer_name')
+                ->get();
+            
+            // Merge and sort by date
+            $transactions = $receives->merge($payments)->sortByDesc('date');
+            
+            // dd($transactions);
+            // Calculate totals
+            $totalDebit = $receives->sum('amount');
+            $totalCredit = $payments->sum('amount');
+            
+            return view('reports.receive_payment', compact('agents', 'suppliers', 'customers', 'transactions', 'totalDebit', 'totalCredit', 'banks'));
+            
+        }
+       else{
+        return redirect()->route('register');
+    }
     }
 
     public function receive_payment_report(Request $request){
@@ -573,7 +601,7 @@ class ReportController extends Controller
 
             return response()->json(['html' => $html]);
         } else {
-            return view('welcome');
+            return redirect()->route('register');
         }
     }
 
