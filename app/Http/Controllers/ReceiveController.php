@@ -244,4 +244,11 @@ class ReceiveController extends Controller
 
         return view('receives.receipt', compact('customer', 'latestReceive', 'totalPaid', 'remaining'));
     }
+
+    public function print($id)
+    {
+        $receive = Receive::findOrFail($id);
+        return view('receives.print', compact('receive'));
+    }
+
 }

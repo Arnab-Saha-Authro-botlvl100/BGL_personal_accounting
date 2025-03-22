@@ -303,6 +303,10 @@ class PaymentController extends Controller
         ]);
     }
 
-
+    public function print($id)
+    {
+        $payment = payment::findOrFail($id);
+        return view('payments.print', compact('payment'));
+    }
 
 }

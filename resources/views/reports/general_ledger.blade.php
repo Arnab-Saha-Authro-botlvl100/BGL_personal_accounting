@@ -149,16 +149,7 @@
                     <form autocomplete="off" id="reportForm" action="" method="POST" class="container mt-4">
                         @csrf
                         <div class="form-container">
-                            <!-- "All" Checkbox -->
-                            <div class="form-group">
-                                <label for="select_all" class="form-label">
-                                    All
-                                </label>
-                                <div class="checkbox-container">
-                                    <input type="checkbox" name="select_all" id="select_all" checked class="form-checkbox">
-                                    <label for="select_all" class="checkbox-label">Select All</label>
-                                </div>
-                            </div>
+                          
                 
                             <!-- Customer -->
                             <div class="form-group">
@@ -174,32 +165,7 @@
                                 </select>
                             </div>
                 
-                            {{-- <!-- Agent -->
-                            <div class="form-group">
-                                <label for="agent" class="form-label">
-                                    Select Agent
-                                </label>
-                                <select name="agent" id="agent" class="form-select">
-                                    <option value="">Select One</option>
-                                    @foreach ($agents as $agent)
-                                        <option value="{{ $agent->id }}">{{ $agent->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                
-                            <!-- Supplier -->
-                            <div class="form-group">
-                                <label for="supplier" class="form-label">
-                                    Select Supplier
-                                </label>
-                                <select name="supplier" id="supplier" class="form-select">
-                                    <option value="">Select One</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-                
+                          
                             <!-- Start Date -->
                             <div class="form-group">
                                 <label for="start_date" class="form-label">From</label>
@@ -232,7 +198,7 @@
                         <thead class="table-dark text-center">
                             <tr>
                                 <th>Date</th>
-                                <th>Invoice/Customer ID/Type</th>
+                                {{-- <th>Invoice/Customer ID/Type</th> --}}
                                 <th>Details</th>
                                 <th>Receive Amount</th>
                                 <th>Payment Amount</th>
@@ -244,7 +210,8 @@
                                     <tr class="table-customer bg-info-subtle">
                                         <td>
                                             <span
-                                                class="badge bg-info text-white text-uppercase fw-bold">Customer</span><br>
+                                                class="badge bg-info text-white text-uppercase fw-bold">Customer</span>
+                                                <br>
                                             {{ $item->created_at->format('d-m-y') }}
                                         </td>
                                         <td>{{ $item->customer_id }}</td>
@@ -259,37 +226,45 @@
                                 @elseif($item->getTable() == 'receives')
                                     <tr class="table-receive bg-success-subtle">
                                         <td>
-                                            <span
-                                                class="badge bg-success text-white text-uppercase fw-bold">Receive</span><br>
+                                            {{-- <span
+                                                class="badge bg-success text-white text-uppercase fw-bold">Receive</span><br> --}}
                                             {{ $item->created_at->format('d-m-y') }}
                                         </td>
-                                        <td>{{ $item->receive_type }}</td>
+                                        {{-- <td>{{ $item->receive_type }}</td> --}}
                                         <td>
-                                            <strong>{{ $item->contract_invoice }}-{{ $item->customer_name }}</strong><br>
-                                             {{ $item->transaction_method }}<br>
+                                            @if ($item->receive_type == 'customer')
+                                                <strong>{{ $item->contract_invoice }}{{ $item->customer_name }}</strong><br>
+                                            @endif
+                                            {{ $item->transaction_method }}<br>
                                             {{ $item->transaction_bank_name }}<br>
-                                             {{ $item->account_number }}- {{ $item->branch_name }}<br>
-                                            {{ $item->note }}
+                                            @if ($item->transaction_method == 'bank')
+                                               AC NO: {{ $item->account_number }} <br> Branch Name: {{ $item->branch_name }}<br>
+                                            @endif
+                                            Note : {{ $item->note }}
                                         </td>
                                         <td><strong class="text-success">{{ $item->amount }}</strong></td>
-                                        <td>N/A</td>
+                                        <td></td>
                                     </tr>
                                 @elseif($item->getTable() == 'payments')
                                     <tr class="table-payment bg-danger-subtle">
                                         <td>
-                                            <span
-                                                class="badge bg-danger text-white text-uppercase fw-bold">Payment</span><br>
+                                            {{-- <span
+                                                class="badge bg-danger text-white text-uppercase fw-bold">Payment</span><br> --}}
                                             {{ $item->created_at->format('d-m-y') }}
                                         </td>
-                                        <td>{{ $item->receive_type }}</td>
+                                        {{-- <td>{{ $item->receive_type }}</td> --}}
                                         <td>
-                                            <strong>{{ $item->contract_invoice }}-{{ $item->customer_name }}</strong><br>
+                                            @if ($item->receive_type == 'customer')
+                                                <strong>{{ $item->contract_invoice }}{{ $item->customer_name }}</strong><br>
+                                            @endif
                                              {{ $item->transaction_method }}<br>
                                              {{ $item->transaction_bank_name }}<br>
-                                             {{ $item->account_number }}- {{ $item->branch_name }}<br>
-                                             {{ $item->note }}
+                                             @if ($item->transaction_method == 'bank')
+                                             AC NO: {{ $item->account_number }} <br> Branch Name: {{ $item->branch_name }}<br>
+                                             @endif
+                                             Note : {{ $item->note }}
                                         </td>
-                                        <td>N/A</td>
+                                        <td></td>
                                         <td><strong class="text-danger">{{ $item->amount }}</strong></td>
                                     </tr>
                                 @elseif($item->getTable() == 'tickets')

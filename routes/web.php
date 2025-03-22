@@ -182,6 +182,7 @@ Route::get('/receives', [ReceiveController::class, 'index'])->name('receives.ind
 Route::resource('receives', ReceiveController::class);
 Route::get('/get-due-amount/{customerId}', [ReceiveController::class, 'getDueAmount']);
 Route::get('/receives/receipt/{customer_id}/{receive_id}', [ReceiveController::class, 'receipt'])->name('receives.receipt');
+Route::get('/receives/print/{id}', [ReceiveController::class, 'print'])->name('receives.print');
 
 use App\Http\Controllers\PaymentController;
 
@@ -189,6 +190,7 @@ Route::get('/payments', [PaymentController::class, 'index'])->name('payments.ind
 Route::resource('payments', PaymentController::class);
 Route::get('/payments/receipt/{customer_id}/{payment_id}', [PaymentController::class, 'receipt'])->name('payments.receipt');
 Route::get('/get-payable-amount/{customerId}', [PaymentController::class, 'getPayableAmount']);
+Route::get('/payments/print/{id}', [PaymentController::class, 'print'])->name('payments.print');
 
 use App\Http\Controllers\TicketController;
 

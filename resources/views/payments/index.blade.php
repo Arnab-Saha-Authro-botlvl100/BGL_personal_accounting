@@ -204,8 +204,8 @@
                                     <thead class="table-dark">
                                         <tr>
                                             <th scope="col" class="text-center">Date</th>
-                                            <th scope="col" class="text-center">Payment Type</th>
-                                            <th scope="col" class="text-center">Customer Name</th>
+                                            {{-- <th scope="col" class="text-center">Payment Type</th> --}}
+                                            <th scope="col" class="text-center">Description</th>
                                             <th scope="col" class="text-center">Transaction Method</th>
                                             <th scope="col" class="text-center">Amount</th>
                                             <th scope="col" class="text-center">Note</th>
@@ -216,7 +216,7 @@
                                         @foreach ($payments as $receive)
                                             <tr>
                                                 <td>{{ date('d-m-y', strtotime($receive->date)) }}</td>
-                                                <td>{{ ucfirst($receive->receive_type) }}</td>
+                                                {{-- <td>{{ ucfirst($receive->receive_type) }}</td> --}}
                                                 <td>{{ $receive->customer_name }}</td>
 
                                                 <td>{{ ucfirst($receive->transaction_method) }}</td>
@@ -247,6 +247,9 @@
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                                     </form>
+                                                    <button class="btn btn-sm btn-outline-secondary" onclick="printReceipt({{ $receive->id }})">
+                                                        Print Receipt
+                                                    </button>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -408,6 +411,28 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // function printReceipt(receiveId) {
+        //     var url = "{{ route('receives.print', ':id') }}";
+        //     url = url.replace(':id', receiveId);
+
+        //     fetch(url)
+        //         .then(response => response.text())
+        //         .then(html => {
+        //             var printWindow = window.open('', '_self'); // Open in the same tab
+        //             printWindow.document.write(html);
+        //             printWindow.document.close();
+        //             printWindow.focus();
+        //             printWindow.print();
+        //         })
+        //         .catch(error => console.error('Error loading receipt:', error));
+        // }
+        function printReceipt(receiveId) {
+            var url = "{{ route('payments.print', ':id') }}"; 
+            url = url.replace(':id', receiveId);
+            window.open(url, '_blank');
+        }
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             flatpickr("#date", {
