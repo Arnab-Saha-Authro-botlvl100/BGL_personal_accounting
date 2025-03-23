@@ -183,7 +183,7 @@
                                 <button type="submit" id="submit-btn" class="btn btn-success">
                                     Submit
                                 </button>
-                                <button type="button" id="print-btn" class="btn btn-primary">
+                                <button type="button" id="print-btn" class="btn btn-primary" onclick="printDiv('printsection')"> 
                                     <i class="fas fa-print"></i> Print
                                 </button>
                                 <button type="button" id="download-btn" class="btn btn-info">
@@ -309,6 +309,45 @@
     </div>
 
 
+    <script>
+        function printDiv(divId) {
+            var printContent = document.getElementById(divId).innerHTML; // Get the content of the div
+            var originalContent = document.body.innerHTML; // Save the original content
+        
+            // Create a new window for printing
+            var printWindow = window.open('', '', 'height=600,width=800');
+        
+            // Write the content and styles to the new window
+            printWindow.document.write('<html><head><title>Print</title>');
+        
+            // Copy all styles from the current document (or you can include specific styles)
+            var styles = '';
+            var styleSheets = document.styleSheets;
+            for (var i = 0; i < styleSheets.length; i++) {
+                try {
+                    var rules = styleSheets[i].cssRules || styleSheets[i].rules;
+                    for (var j = 0; j < rules.length; j++) {
+                        styles += rules[j].cssText;
+                    }
+                } catch (e) {
+                    // Handle cross-origin stylesheets, if necessary
+                }
+            }
+        
+            // Include the styles inside the print window
+            printWindow.document.write('<style>' + styles + '</style>');
+        
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent); // Insert the content of the div
+            printWindow.document.write('</body></html>');
+        
+            // Wait for the content to load and then trigger the print dialog
+            printWindow.document.close(); // Close the document for further editing
+            printWindow.focus(); // Focus on the window before printing
+            printWindow.print(); // Trigger the print dialog
+            printWindow.close(); // Close the print window after printing
+        }
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -397,51 +436,30 @@
         });
     </script>
    <!-- Include html2pdf.js Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
-<script>
-    $(document).ready(function () {
-        // Print Function
-        $('#print-btn').click(function () {
-            var printContent = document.getElementById('printsection');
-            var newWindow = window.open('', '', 'width=800,height=600');
-            newWindow.document.write('<html><head><title>Print</title>');
+    <script>
+        $(document).ready(function () {
             
-            // Include external CSS (styles from the page)
-            var styles = document.getElementsByTagName('style');
-            for (var i = 0; i < styles.length; i++) {
-                newWindow.document.write('<style>' + styles[i].innerHTML + '</style>');
-            }
+            // Download as PDF with Styles
+            $('#download-btn').click(function () {
+                var element = document.getElementById('printsection');
 
-            // Or include an external stylesheet
-            // newWindow.document.write('<link rel="stylesheet" href="path-to-your-stylesheet.css">');
-
-            newWindow.document.write('</head><body>');
-            newWindow.document.write(printContent.innerHTML);
-            newWindow.document.write('</body></html>');
-            newWindow.document.close();
-            newWindow.print();
+                // Use html2pdf.js with the option to include styles
+                html2pdf()
+                    .from(element)
+                    .set({
+                        html2canvas: {
+                            scale: 2,
+                            logging: true,
+                            letterRendering: true,
+                        },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    })
+                    .save('report.pdf');
+            });
         });
-
-        // Download as PDF with Styles
-        $('#download-btn').click(function () {
-            var element = document.getElementById('printsection');
-
-            // Use html2pdf.js with the option to include styles
-            html2pdf()
-                .from(element)
-                .set({
-                    html2canvas: {
-                        scale: 2,
-                        logging: true,
-                        letterRendering: true,
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                })
-                .save('report.pdf');
-        });
-    });
-</script>
+    </script>
 
 
     

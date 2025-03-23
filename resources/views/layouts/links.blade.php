@@ -361,29 +361,8 @@
     </div>
 
     <ul class="nav nav-pills flex-column mb-auto" id="sidebar-list">
-        <!-- Add Service -->
-        {{-- <li class="nav-item">
-            <a href="#" class="nav-link text-white d-flex align-items-center" data-bs-toggle="modal"
-                data-bs-target="#servicemodal">
-                <i class="fas fa-tools me-2"></i> Add Service
-            </a>
-        </li> --}}
+      
 
-        <!-- Add Agent -->
-        {{-- <li class="nav-item">
-            <a href="#" class="nav-link text-white d-flex align-items-center" data-bs-toggle="modal"
-                data-bs-target="#exampleModal">
-                <i class="fas fa-user-tie me-2"></i> Add Agent
-            </a>
-        </li> --}}
-
-        <!-- Add Supplier -->
-        {{-- <li class="nav-item">
-            <a href="#" class="nav-link text-white d-flex align-items-center" data-bs-toggle="modal"
-                data-bs-target="#supplierModal">
-                <i class="fas fa-truck me-2"></i> Add Supplier
-            </a>
-        </li> --}}
 
         <!-- Add Customer -->
         <li class="nav-item">
@@ -430,28 +409,7 @@
             </a>
         </li>
 
-        <!-- Previous Due -->
-        {{-- <li class="nav-item">
-            <a href="#" class="nav-link text-white d-flex align-items-center" data-bs-toggle="modal"
-                data-bs-target="#previousDueModal">
-                <i class="fas fa-money-bill-wave me-2"></i> Previous Due
-            </a>
-        </li> --}}
-
-
-        <!-- Tickets -->
-        {{-- <li class="nav-item">
-            <a href="{{ route('tickets.index') }}" class="nav-link text-white d-flex align-items-center">
-                <i class="fas fa-ticket-alt me-2"></i> Tickets
-            </a>
-        </li> --}}
-
-        <!-- Contracts -->
-        {{-- <li class="nav-item">
-            <a href="{{ route('contract.index') }}" class="nav-link text-white d-flex align-items-center">
-                <i class="fas fa-file-contract me-2"></i> Contracts
-            </a>
-        </li> --}}
+      
 
         <!-- Reports Dropdown -->
         <li class="nav-item">
@@ -487,49 +445,40 @@
                 </ul>
             </div>
         </li>
-
-        <!-- Reports Dropdown -->
         {{-- <li class="nav-item">
-            <a href="#" class="nav-link text-white d-flex align-items-center dropdown-toggle"
-                data-bs-toggle="collapse" data-bs-target="#detailsMenu">
-                <i class="fa-solid fa-circle-info"></i> Details
+            <a href="#" class="nav-link text-white d-flex align-items-center dropdown-toggle custom-dropdown-toggle"
+                data-bs-toggle="collapse" data-bs-target="#reportMenu">
+                <i class="fas fa-chart-line me-2"></i> Reports
             </a>
-            <div class="collapse" id="detailsMenu">
+            <div class="custom-dropdown-menu" id="reportMenu">
                 <ul class="nav flex-column ms-4">
-                    <!-- Agent -->
                     <li class="nav-item">
-                        <a href="{{ route('details.agent') }}" class="nav-link text-white d-flex align-items-center">
-                            <i class="fas fa-user-tie me-2"></i> <!-- Icon for Agent -->
-                            <span>Agent</span>
+                        <a href="{{ route('report.statement') }}" class="nav-link text-white d-flex align-items-center">
+                            <i class="fas fa-file-alt me-2"></i> Statement
                         </a>
                     </li>
-                
-                    <!-- Supplier -->
                     <li class="nav-item">
-                        <a href="{{ route('details.supplier') }}" class="nav-link text-white d-flex align-items-center">
-                            <i class="fas fa-truck me-2"></i> <!-- Icon for Supplier -->
-                            <span>Supplier</span>
+                        <a href="{{ route('report.general_ledger') }} "
+                            class="nav-link text-white d-flex align-items-center">
+                            <i class="fas fa-file-alt me-2"></i> General ledger
                         </a>
                     </li>
-                
-                    <!-- Transactions -->
                     <li class="nav-item">
-                        <a href="{{ route('details.transactions') }}" class="nav-link text-white d-flex align-items-center">
-                            <i class="fas fa-exchange-alt me-2"></i> <!-- Icon for Transactions -->
-                            <span>Transactions</span>
+                        <a href="{{ route('report.cashbook') }} "
+                            class="nav-link text-white d-flex align-items-center">
+                            <i class="fas fa-file-alt me-2"></i> Cash Book
                         </a>
                     </li>
-                
-                    <!-- Services -->
                     <li class="nav-item">
-                        <a href="{{ route('details.services') }}" class="nav-link text-white d-flex align-items-center">
-                            <i class="fas fa-tools me-2"></i> <!-- Icon for Services -->
-                            <span>Services</span>
+                        <a href="{{ route('report.receive_payment') }} "
+                            class="nav-link text-white d-flex align-items-center">
+                            <i class="fas fa-file-alt me-2"></i> Receive Payment
                         </a>
                     </li>
                 </ul>
             </div>
         </li> --}}
+
     </ul>
 </div>
 

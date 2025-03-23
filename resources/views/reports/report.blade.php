@@ -1,3 +1,18 @@
+<div class="container-fluid shadow-lg p-5 mt-4">
+    <h2 class="text-center font-weight-bold text-xl my-4 text-dark">General Ledger</h2>
+            
+<!-- Company Information -->
+<div class="d-flex justify-content-between mb-4">
+    <div class="text-lg">
+        <h3 class="font-semibold text-dark">Company Name: {{ Auth::user()->name }}</h3>
+        <p><span class="font-semibold">Period Date:</span> {{ \Carbon\Carbon::parse($start_date)->format('d-m-Y') }} to {{ \Carbon\Carbon::parse($end_date)->format('d-m-Y') }}</p>
+    </div>
+    <div class="text-lg text-right">
+        <h3 class="font-semibold text-dark">Email: {{ Auth::user()->email }}<br>Phone: {{ Auth::user()->phone }}</h3>
+        <p><span class="font-semibold">Address:</span> {{ Auth::user()->address }}</p>
+    </div>
+</div>
+
 <table class="table table-bordered table-hover">
     <thead class="table-dark text-center">
         <tr>
@@ -107,3 +122,6 @@
     @endforeach
     </tbody>
 </table>
+</div>
+
+

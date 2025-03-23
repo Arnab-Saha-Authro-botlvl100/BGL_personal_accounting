@@ -5,18 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        clifford: '#da373d',
-                    }
-                }
-            }
-        }
-    </script>
+    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+ 
     <style>
         .hide-scroll-bar {
             -ms-overflow-style: none;
@@ -35,15 +25,41 @@
             }
         }
     </style>
+    <style>
+        .custom-btn {
+            font-weight: bold;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .custom-btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .custom-btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .custom-btn-dark {
+            background-color: #343a40;
+            color: white;
+        }
+        .custom-btn-dark:hover {
+            background-color: #23272b;
+        }
+    </style>
 </head>
 
 <body class="flex">
 
     <main class="flex-1 mx-auto max-w-7xl px-10">
-        <div class="buttons justify-end flex gap-3 shadow-lg p-5 ">
-            {{-- <button class="text-white bg-pink-600 font-bold text-md py-2 px-4">Send</button> --}}
-            <button class="text-white bg-blue-600 font-bold text-md py-2 px-4" onclick="printDiv('printable-part')">Print</button>
-            <button class="text-white bg-black font-bold text-md py-2 px-4" onclick="window.history.back();">GO BACK</button>
+        <div class="d-flex justify-content-between align-item-center gap-3 shadow-lg p-5">
+           
+            <button class="custom-btn custom-btn-primary" onclick="printDiv('printable-part')">Print</button>
+            <button class="custom-btn custom-btn-dark" onclick="window.history.back();">GO BACK</button>
+
         </div>
         {{-- <div class="container-fluid shadow-lg p-5 mt-4" id="printable-part">
             <h2 class="text-center font-bold text-3xl my-2">Cash Book</h2>
@@ -136,7 +152,7 @@
         </div> --}}
         <div class="container-fluid shadow-lg p-5 mt-4" id="printable-part">
             <!-- Title -->
-            <h2 class="text-center font-weight-bold text-3xl my-4 text-dark">Cash Book</h2>
+            <h2 class="text-center font-weight-bold text-xl my-4 text-dark">Cash Book</h2>
             
             <!-- Company Information -->
             <div class="d-flex justify-content-between mb-4">

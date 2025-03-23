@@ -291,6 +291,8 @@ class ReportController extends Controller
             // dd($sorted);
             $htmlpart = ViewFacade::make('reports.report', [
                 'sorted' => $sorted,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
             ])->render();
 
             return response()->json(['html' => $htmlpart]);
@@ -446,7 +448,7 @@ class ReportController extends Controller
                 ->get();
             
             // Merge and sort by date
-            $transactions = $receives->merge($payments)->sortByDesc('date');
+            $transactions = $receives->concat($payments)->sortByDesc('date');
             
             // dd($transactions);
             // Calculate totals
@@ -501,6 +503,8 @@ class ReportController extends Controller
                     ->where('payments.receive_type', '=', 'customer')
                     ->where('payments.customer_id', '=', $customer)
                     ->join('customers', 'payments.customer_id', '=', 'customers.id');
+
+                // $customer = Customer::where('id', $customer)->value('name');
            }
 
         
@@ -522,13 +526,21 @@ class ReportController extends Controller
             $receivesData = $receives->get();
             $paymentsData = $payments->get();
 
-            $transactions = $receivesData->merge($paymentsData)->sortByDesc('date');
+            if ($paymentsData->isNotEmpty() && $paymentsData->first() instanceof \Illuminate\Database\Eloquent\Collection) {
+                $paymentsDataFlattened = $paymentsData->collapse(); // Flatten nested collections
+            } else {
+                $paymentsDataFlattened = $paymentsData; // If already a single collection
+            }
+            
+            // Merge the $receivesData and flattened $paymentsData
+            $transactions = $receivesData->concat($paymentsDataFlattened)->sortByDesc('date');
+            
+            // dd($transactions, $receivesData, $paymentsData);
 
             // Calculate totals (example logic, adjust as needed)
             $totalDebit = $receivesData->sum('amount');
             $totalCredit = $paymentsData->sum('amount');
 
-            // dd($receivesData, $paymentsData);
             // Render the report view with the gathered data
             $html = ViewFacade::make('reports.receive_payment_report', [
                 'start_date' => $start_date,
@@ -539,6 +551,7 @@ class ReportController extends Controller
                 'banks'        => $banks,
                 'totalDebit' => $totalDebit,
                 'totalCredit' => $totalCredit,
+                'type'       => $customer,
             ])->render();
 
             return response()->json(['html' => $html]);
